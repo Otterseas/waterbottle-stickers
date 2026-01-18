@@ -19,6 +19,7 @@
       --text-light: #6b7280;
       --white: #ffffff;
       --border-light: #e0d8cc;
+      --success-green: #4a9d7a;
     }
 
     * {
@@ -34,7 +35,6 @@
       line-height: 1.6;
     }
 
-    /* Subtle texture overlay */
     body::before {
       content: '';
       position: fixed;
@@ -57,7 +57,6 @@
       padding: 2rem 1.5rem;
     }
 
-    /* Header */
     .page-header {
       text-align: center;
       margin-bottom: 3rem;
@@ -103,6 +102,13 @@
       display: flex;
       align-items: center;
       gap: 2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .water-bottle-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      border-color: var(--soft-teal);
     }
 
     .bottle-image-container {
@@ -139,6 +145,11 @@
       margin-bottom: 1rem;
     }
 
+    .bottle-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
     .btn-primary {
       background: var(--soft-teal);
       color: white;
@@ -158,6 +169,17 @@
       background: #4a8d95;
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(90, 159, 168, 0.3);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--soft-teal);
+      border: 2px solid var(--soft-teal);
+    }
+
+    .btn-secondary:hover {
+      background: var(--soft-teal);
+      color: white;
     }
 
     /* Sticker Selector */
@@ -320,6 +342,7 @@
       text-decoration: none;
       color: inherit;
       display: block;
+      cursor: pointer;
     }
 
     .bundle-card:hover {
@@ -419,6 +442,12 @@
       color: var(--text-light);
     }
 
+    .cart-item-info .discounted {
+      font-size: 0.75rem;
+      color: var(--success-green);
+      font-weight: 500;
+    }
+
     .cart-item button {
       background: transparent;
       border: 1px solid var(--coral-accent);
@@ -455,7 +484,23 @@
       margin-bottom: 1rem;
       font-size: 0.85rem;
       color: var(--text-dark);
-      text-align: center;
+    }
+
+    .pricing-tier-info .tier-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--soft-teal);
+    }
+
+    .pricing-tier-info .tier-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .pricing-tier-info .discount-amount {
+      color: var(--success-green);
+      font-weight: 600;
     }
 
     .minimum-warning {
@@ -475,6 +520,11 @@
       margin-bottom: 0.75rem;
       font-size: 0.95rem;
       color: var(--text-dark);
+    }
+
+    .cart-summary-row.discount {
+      color: var(--success-green);
+      font-weight: 500;
     }
 
     .cart-summary-row.total {
@@ -511,20 +561,21 @@
       cursor: not-allowed;
     }
 
-    /* Modal */
+    /* Modal with iframe */
     .modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(26, 46, 61, 0.7);
+      background: rgba(26, 46, 61, 0.85);
       backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
       animation: fadeIn 0.3s ease;
+      padding: 2rem;
     }
 
     @keyframes fadeIn {
@@ -535,12 +586,14 @@
     .modal-content {
       background: var(--white);
       border-radius: 12px;
-      padding: 2.5rem;
-      max-width: 600px;
-      width: 90%;
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       animation: slideUp 0.3s ease;
       position: relative;
+      display: flex;
+      flex-direction: column;
     }
 
     @keyframes slideUp {
@@ -548,10 +601,22 @@
       to { transform: translateY(0); opacity: 1; }
     }
 
+    .modal-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--primary-navy);
+      margin: 0;
+    }
+
     .modal-close {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
       background: transparent;
       border: 1px solid var(--border-light);
       color: var(--text-light);
@@ -572,59 +637,29 @@
       border-color: var(--coral-accent);
     }
 
-    .modal-content img {
+    .modal-body {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .modal-body iframe {
       width: 100%;
-      max-height: 300px;
-      object-fit: contain;
-      margin-bottom: 1.5rem;
-      border-radius: 8px;
+      height: 100%;
+      border: none;
+      display: block;
     }
 
-    .modal-content h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      color: var(--primary-navy);
-      margin-bottom: 0.5rem;
-    }
-
-    .modal-content .region {
-      font-size: 1rem;
-      color: var(--text-light);
-      margin-bottom: 1rem;
-    }
-
-    .modal-content .description {
-      font-size: 1rem;
-      color: var(--text-dark);
-      margin-bottom: 1.5rem;
-      line-height: 1.7;
-    }
-
-    .modal-content .price {
-      font-size: 1.8rem;
-      color: var(--coral-accent);
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-    }
-
-    .modal-buttons {
+    .modal-footer {
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--border-light);
       display: flex;
       gap: 1rem;
+      justify-content: flex-end;
     }
 
-    .modal-buttons .btn-primary {
-      flex: 1;
-    }
-
-    .modal-buttons .btn-secondary {
-      flex: 1;
-      background: var(--light-cream);
-      color: var(--primary-navy);
-      border: 1px solid var(--border-light);
-    }
-
-    .modal-buttons .btn-secondary:hover {
-      background: var(--warm-sand);
+    .modal-footer .btn-primary {
+      padding: 0.75rem 1.5rem;
     }
 
     @media (max-width: 1024px) {
@@ -643,8 +678,23 @@
         text-align: center;
       }
 
+      .bottle-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .bottle-actions .btn-primary,
+      .bottle-actions .btn-secondary {
+        width: 100%;
+      }
+
       .page-title {
         font-size: 2.2rem;
+      }
+
+      .modal-content {
+        max-width: 95%;
+        max-height: 95vh;
       }
     }
 
@@ -656,6 +706,10 @@
       .bundle-grid {
         grid-template-columns: 1fr;
       }
+
+      .modal-overlay {
+        padding: 1rem;
+      }
     }
   </style>
 </head>
@@ -665,53 +719,58 @@
   <script type="text/babel">
     const { useState } = React;
 
-    // CONFIGURATION: Replace these with your actual Wix product URLs and data
+    // CONFIGURATION: Update these with your actual Wix product URLs and data
+    const WATER_BOTTLE = {
+      id: 'water-bottle',
+      name: 'The Surface Tank',
+      description: 'Premium water bottle designed for divers. Double-walled vacuum insulation. 40oz capacity.',
+      price: 40.00,
+      wixUrl: 'https://www.otterseas.com/product-page/the-surface-tank-water-bottle-pre-sale',
+      wixProductId: 'YOUR_WIX_PRODUCT_ID', // Get from Wix
+      image: 'https://via.placeholder.com/180x180/1a2e3d/ffffff?text=Surface+Tank'
+    };
+
     const STICKERS = {
       Asia: [
-        { id: 'asia-raja-ampat', name: 'Raja Ampat', region: 'Asia', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/raja-ampat', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Raja+Ampat', description: 'Vibrant coral reefs in the heart of the Coral Triangle' },
-        { id: 'asia-komodo', name: 'Komodo', region: 'Asia', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/komodo', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Komodo', description: 'Dramatic currents and manta encounters' },
-        { id: 'asia-tubbataha', name: 'Tubbataha', region: 'Asia', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/tubbataha', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Tubbataha', description: 'UNESCO World Heritage pristine coral walls' },
-        { id: 'asia-similan', name: 'Similan Islands', region: 'Asia', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/similan-islands', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Similan', description: 'Crystal clear waters and underwater boulders' },
+        { id: 'asia-raja-ampat', name: 'Raja Ampat', region: 'Asia', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/raja-ampat', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Raja+Ampat', description: 'Vibrant coral reefs in the heart of the Coral Triangle' },
+        { id: 'asia-komodo', name: 'Komodo', region: 'Asia', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/komodo', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Komodo', description: 'Dramatic currents and manta encounters' },
+        { id: 'asia-tubbataha', name: 'Tubbataha', region: 'Asia', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/tubbataha', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Tubbataha', description: 'UNESCO World Heritage pristine coral walls' },
       ],
       Europe: [
-        { id: 'europe-malta', name: 'Malta Blue Hole', region: 'Europe', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/malta', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Malta', description: 'Mediterranean diving with dramatic formations' },
-        { id: 'europe-azores', name: 'Azores', region: 'Europe', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/azores', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Azores', description: 'Pelagic encounters in the Atlantic' },
-        { id: 'europe-scapa', name: 'Scapa Flow', region: 'Europe', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/scapa-flow', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Scapa', description: 'Historic WWI shipwrecks' },
+        { id: 'europe-malta', name: 'Malta Blue Hole', region: 'Europe', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/malta', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Malta', description: 'Mediterranean diving with dramatic formations' },
+        { id: 'europe-azores', name: 'Azores', region: 'Europe', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/azores', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Azores', description: 'Pelagic encounters in the Atlantic' },
       ],
       Americas: [
-         { id: 'americas-socorro', name: 'Socorro', region: 'Americas', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/socorro', image: 'https://static.wixstatic.com/media/5c0d7c_abea2be15a684e9a943b7915585da8d1~mv2.jpg/v1/fill/w_1102,h_1102,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/5c0d7c_abea2be15a684e9a943b7915585da8d1~mv2.jpg', description: 'mantas mantas mantas' },
-         { id: 'americas-socorro', name: 'Socorro', region: 'Americas', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/socorro', image: 'https://static.wixstatic.com/media/5c0d7c_abea2be15a684e9a943b7915585da8d1~mv2.jpg/v1/fill/w_1102,h_1102,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/5c0d7c_abea2be15a684e9a943b7915585da8d1~mv2.jpg', description: 'mantas mantas mantas' },
-         { id: 'americas-socorro', name: 'Socorro', region: 'Americas', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/socorro', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Galapagos', description: 'mantas mantas mantas' },
-        { id: 'americas-galapagos', name: 'Galápagos', region: 'Americas', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/galapagos', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Galapagos', description: 'Hammerhead sharks and unique wildlife' },
-        { id: 'americas-socorro', name: 'Socorro', region: 'Americas', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/socorro', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Socorro', description: 'Giant manta interactions' },
-        { id: 'americas-bonaire', name: 'Bonaire', region: 'Americas', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/bonaire', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Bonaire', description: 'Shore diving paradise' },
-        { id: 'americas-cozumel', name: 'Cozumel', region: 'Americas', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/cozumel', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Cozumel', description: 'Caribbean drift diving' },
+        { id: 'americas-galapagos', name: 'Galápagos', region: 'Americas', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/galapagos', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Galapagos', description: 'Hammerhead sharks and unique wildlife' },
+        { id: 'americas-socorro', name: 'Socorro', region: 'Americas', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/socorro', wixProductId: 'YOUR_WIX_ID', image: 'https://static.wixstatic.com/media/5c0d7c_abea2be15a684e9a943b7915585da8d1~mv2.jpg/v1/fill/w_1102,h_1102,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/5c0d7c_abea2be15a684e9a943b7915585da8d1~mv2.jpg', description: 'Giant manta interactions' },
+        { id: 'americas-socorro', name: 'Socorro', region: 'Americas', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/socorro', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Socorro', description: 'Giant manta interactions' },
+        { id: 'americas-socorro', name: 'Socorro', region: 'Americas', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/socorro', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Socorro', description: 'Giant manta interactions' },
+        { id: 'americas-socorro', name: 'Socorro', region: 'Americas', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/socorro', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Socorro', description: 'Giant manta interactions' },
+        { id: 'americas-socorro', name: 'Socorro', region: 'Americas', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/socorro', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Socorro', description: 'Giant manta interactions' },
       ],
       Oceania: [
-        { id: 'oceania-gbr', name: 'Great Barrier Reef', region: 'Oceania', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/great-barrier-reef', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=GBR', description: 'World\'s largest coral reef system' },
-        { id: 'oceania-palau', name: 'Palau', region: 'Oceania', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/palau', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Palau', description: 'Jellyfish Lake and blue corners' },
-        { id: 'oceania-fiji', name: 'Fiji', region: 'Oceania', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/fiji', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Fiji', description: 'Soft coral capital of the world' },
+        { id: 'oceania-gbr', name: 'Great Barrier Reef', region: 'Oceania', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/great-barrier-reef', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=GBR', description: 'World\'s largest coral reef system' },
+        { id: 'oceania-palau', name: 'Palau', region: 'Oceania', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/palau', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Palau', description: 'Jellyfish Lake and blue corners' },
       ],
     };
 
     const BUNDLES = [
-      { id: 'bundle-tropical', name: 'Tropical Explorer Pack', description: 'Warm water favorites from around the globe', count: 8, price: 25.00, wixUrl: 'https://www.otterseas.com/product-page/tropical-bundle' },
-      { id: 'bundle-pacific', name: 'Pacific Paradise Pack', description: 'Best of the Pacific Ocean', count: 10, price: 32.00, wixUrl: 'https://www.otterseas.com/product-page/pacific-bundle' },
-      { id: 'bundle-adventure', name: 'Adventure Seeker Pack', description: 'For the adventurous diver', count: 6, price: 20.00, wixUrl: 'https://www.otterseas.com/product-page/adventure-bundle' },
+      { id: 'bundle-tropical', name: 'Tropical Explorer Pack', description: 'Warm water favorites from around the globe', count: 8, price: 25.00, wixUrl: 'https://www.otterseas.com/product-page/tropical-bundle', wixProductId: 'YOUR_WIX_ID' },
+      { id: 'bundle-pacific', name: 'Pacific Paradise Pack', description: 'Best of the Pacific Ocean', count: 10, price: 32.00, wixUrl: 'https://www.otterseas.com/product-page/pacific-bundle', wixProductId: 'YOUR_WIX_ID' },
     ];
 
-    const PRICING_TIERS = [
-      { min: 1, max: 9, price: 3.50 },
-      { min: 10, max: 19, price: 3.00 },
-      { min: 20, max: Infinity, price: 2.50 },
+    // Discount tiers: basePrice minus discount
+    const DISCOUNT_TIERS = [
+      { min: 5, max: 9, discount: 0.35 },   // £3.50 - £0.35 = £3.15
+      { min: 10, max: Infinity, discount: 0.55 },  // £3.50 - £0.55 = £2.95
     ];
 
     function StickerSelector() {
       const [activeTab, setActiveTab] = useState('Asia');
       const [cart, setCart] = useState([]);
-      const [selectedSticker, setSelectedSticker] = useState(null);
+      const [modalContent, setModalContent] = useState(null);
 
-      const addToCart = (item, isBundle = false) => {
+      const addToCart = (item, isBundle = false, isBottle = false) => {
         setCart(prev => {
           const existing = prev.find(i => i.id === item.id);
           if (existing) {
@@ -719,9 +778,9 @@
               i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
             );
           }
-          return [...prev, { ...item, quantity: 1, isBundle }];
+          return [...prev, { ...item, quantity: 1, isBundle, isBottle }];
         });
-        setSelectedSticker(null);
+        setModalContent(null);
       };
 
       const removeFromCart = (id) => {
@@ -730,42 +789,79 @@
 
       const getStickerCount = () => {
         return cart.reduce((total, item) => {
-          if (!item.isBundle) {
+          if (!item.isBundle && !item.isBottle) {
             return total + item.quantity;
           }
           return total;
         }, 0);
       };
 
-      const getCurrentTier = () => {
+      const getCurrentDiscount = () => {
         const count = getStickerCount();
-        return PRICING_TIERS.find(tier => count >= tier.min && count <= tier.max);
+        const tier = DISCOUNT_TIERS.find(t => count >= t.min && count <= t.max);
+        return tier ? tier.discount : 0;
+      };
+
+      const calculateSubtotal = () => {
+        let total = 0;
+        cart.forEach(item => {
+          if (item.isBundle || item.isBottle) {
+            total += item.price * item.quantity;
+          } else {
+            total += item.basePrice * item.quantity;
+          }
+        });
+        return total;
+      };
+
+      const calculateDiscount = () => {
+        const discount = getCurrentDiscount();
+        const stickerCount = getStickerCount();
+        return discount * stickerCount;
       };
 
       const calculateTotal = () => {
-        const tier = getCurrentTier();
-        let total = 0;
-
-        cart.forEach(item => {
-          if (item.isBundle) {
-            total += item.price * item.quantity;
-          } else {
-            total += (tier?.price || item.price) * item.quantity;
-          }
-        });
-
-        return total.toFixed(2);
+        return (calculateSubtotal() - calculateDiscount()).toFixed(2);
       };
 
       const canCheckout = () => {
         const stickerCount = getStickerCount();
-        const hasBundles = cart.some(item => item.isBundle);
-        return stickerCount >= 5 || hasBundles;
+        return stickerCount >= 5 || cart.some(item => item.isBundle);
       };
 
       const handleCheckout = () => {
-        alert('Note: This is a demo. In production, you would:\n\n1. Save cart data to session\n2. Redirect to Wix checkout\n3. Or use Wix API to add items\n\nSee integration guide for details.');
-        console.log('Cart data:', cart);
+        // Prepare cart data for Wix integration
+        const cartData = {
+          items: cart.map(item => ({
+            productId: item.wixProductId,
+            quantity: item.quantity,
+            name: item.name,
+            price: item.isBundle || item.isBottle ? item.price : (item.basePrice - getCurrentDiscount())
+          })),
+          subtotal: calculateSubtotal(),
+          discount: calculateDiscount(),
+          total: calculateTotal(),
+          discountTier: getCurrentDiscount() > 0 ? `${getStickerCount()} stickers - £${getCurrentDiscount().toFixed(2)} off each` : null
+        };
+
+        // Save to sessionStorage for Wix to retrieve
+        sessionStorage.setItem('otterseas_cart', JSON.stringify(cartData));
+        
+        // Option 1: Redirect to Wix with cart data in URL
+        const cartParams = encodeURIComponent(JSON.stringify(cartData));
+        window.location.href = `https://www.otterseas.com/cart-handler?data=${cartParams}`;
+        
+        // Option 2: Show instructions (for testing)
+        // alert(`Cart prepared! ${cart.length} items\nTotal: £${calculateTotal()}\n\nIn production, this will redirect to your Wix store with all items added to cart.`);
+        // console.log('Cart data for Wix:', cartData);
+      };
+
+      const openProductModal = (item, isBundle = false, isBottle = false) => {
+        setModalContent({
+          ...item,
+          isBundle,
+          isBottle
+        });
       };
 
       return (
@@ -778,17 +874,28 @@
           <div className="main-content">
             <div className="left-section">
               {/* Water Bottle */}
-              <div className="water-bottle-card">
+              <div className="water-bottle-card" onClick={() => openProductModal(WATER_BOTTLE, false, true)}>
                 <div className="bottle-image-container">
-                  <img src="https://via.placeholder.com/180x180/1a2e3d/ffffff?text=Surface+Tank" alt="The Surface Tank" />
+                  <img src={WATER_BOTTLE.image} alt={WATER_BOTTLE.name} />
                 </div>
                 <div className="bottle-info">
-                  <h2>The Surface Tank</h2>
-                  <p>Premium water bottle designed for divers. Double-walled vacuum insulation. 40oz capacity.</p>
-                  <div className="bottle-price">£40.00</div>
-                  <a href="https://www.otterseas.com/product-page/the-surface-tank-water-bottle-pre-sale" className="btn-primary" target="_blank">
-                    View Product
-                  </a>
+                  <h2>{WATER_BOTTLE.name}</h2>
+                  <p>{WATER_BOTTLE.description}</p>
+                  <div className="bottle-price">£{WATER_BOTTLE.price.toFixed(2)}</div>
+                  <div className="bottle-actions">
+                    <button 
+                      className="btn-primary btn-secondary" 
+                      onClick={(e) => { e.stopPropagation(); addToCart(WATER_BOTTLE, false, true); }}
+                    >
+                      Add to Selection
+                    </button>
+                    <button 
+                      className="btn-primary" 
+                      onClick={(e) => { e.stopPropagation(); openProductModal(WATER_BOTTLE, false, true); }}
+                    >
+                      View Details
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -812,11 +919,11 @@
                 <div className="sticker-grid-container">
                   <div className="sticker-grid">
                     {STICKERS[activeTab].map(sticker => (
-                      <div key={sticker.id} className="sticker-card" onClick={() => setSelectedSticker(sticker)}>
+                      <div key={sticker.id} className="sticker-card" onClick={() => openProductModal(sticker)}>
                         <img src={sticker.image} alt={sticker.name} />
                         <h4>{sticker.name}</h4>
                         <div className="region">{sticker.region}</div>
-                        <div className="price">£{sticker.price.toFixed(2)}</div>
+                        <div className="price">£{sticker.basePrice.toFixed(2)}</div>
                       </div>
                     ))}
                   </div>
@@ -828,7 +935,7 @@
                 <h3>Pre-Selected Bundles</h3>
                 <div className="bundle-grid">
                   {BUNDLES.map(bundle => (
-                    <div key={bundle.id} className="bundle-card" onClick={() => setSelectedSticker({ ...bundle, isBundle: true })}>
+                    <div key={bundle.id} className="bundle-card" onClick={() => openProductModal(bundle, true)}>
                       <h4>{bundle.name}</h4>
                       <div className="bundle-description">{bundle.description}</div>
                       <div className="bundle-count">{bundle.count} stickers included</div>
@@ -852,8 +959,14 @@
                       <div className="cart-item-info">
                         <h4>{item.name}</h4>
                         <div className="quantity">
-                          Qty: {item.quantity} {item.isBundle && `(${item.count} stickers)`}
+                          Qty: {item.quantity}
+                          {item.isBundle && ` (${item.count} stickers)`}
                         </div>
+                        {!item.isBundle && !item.isBottle && getCurrentDiscount() > 0 && (
+                          <div className="discounted">
+                            -£{getCurrentDiscount().toFixed(2)} discount applied
+                          </div>
+                        )}
                       </div>
                       <button onClick={() => removeFromCart(item.id)}>Remove</button>
                     </div>
@@ -862,26 +975,36 @@
               </div>
 
               <div className="cart-summary">
-                {getStickerCount() > 0 && (
+                {getStickerCount() >= 5 && (
                   <div className="pricing-tier-info">
-                    {getStickerCount()} stickers @ £{getCurrentTier()?.price.toFixed(2)} each
+                    <div className="tier-title">Volume Discount Active!</div>
+                    <div className="tier-details">
+                      <div>{getStickerCount()} stickers selected</div>
+                      <div className="discount-amount">
+                        £{getCurrentDiscount().toFixed(2)} off per sticker
+                      </div>
+                    </div>
                   </div>
                 )}
 
-                {!canCheckout() && (
+                {getStickerCount() > 0 && getStickerCount() < 5 && (
                   <div className="minimum-warning">
-                    Minimum 5 stickers required
+                    Add {5 - getStickerCount()} more sticker{5 - getStickerCount() !== 1 ? 's' : ''} to unlock discounts
                   </div>
                 )}
 
                 <div className="cart-summary-row">
-                  <span>Individual Stickers:</span>
-                  <span>{getStickerCount()}</span>
+                  <span>Subtotal:</span>
+                  <span>£{calculateSubtotal().toFixed(2)}</span>
                 </div>
-                <div className="cart-summary-row">
-                  <span>Bundles:</span>
-                  <span>{cart.filter(i => i.isBundle).length}</span>
-                </div>
+
+                {getCurrentDiscount() > 0 && (
+                  <div className="cart-summary-row discount">
+                    <span>Volume Discount:</span>
+                    <span>-£{calculateDiscount().toFixed(2)}</span>
+                  </div>
+                )}
+
                 <div className="cart-summary-row total">
                   <span>Total:</span>
                   <span>£{calculateTotal()}</span>
@@ -898,24 +1021,34 @@
             </aside>
           </div>
 
-          {/* Modal */}
-          {selectedSticker && (
-            <div className="modal-overlay" onClick={() => setSelectedSticker(null)}>
+          {/* Product Page Modal */}
+          {modalContent && (
+            <div className="modal-overlay" onClick={() => setModalContent(null)}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <button className="modal-close" onClick={() => setSelectedSticker(null)}>×</button>
-                <img src={selectedSticker.image || 'https://via.placeholder.com/600x300'} alt={selectedSticker.name} />
-                <h3>{selectedSticker.name}</h3>
-                {!selectedSticker.isBundle && <div className="region">{selectedSticker.region}</div>}
-                {selectedSticker.isBundle && <div className="region">{selectedSticker.count} stickers included</div>}
-                <div className="description">{selectedSticker.description}</div>
-                <div className="price">£{selectedSticker.price.toFixed(2)}</div>
-                <div className="modal-buttons">
-                  <button className="btn-primary" onClick={() => addToCart(selectedSticker, selectedSticker.isBundle)}>
+                <div className="modal-header">
+                  <h3>{modalContent.name}</h3>
+                  <button className="modal-close" onClick={() => setModalContent(null)}>×</button>
+                </div>
+                <div className="modal-body">
+                  <iframe 
+                    src={modalContent.wixUrl} 
+                    title={modalContent.name}
+                    allow="payment"
+                  />
+                </div>
+                <div className="modal-footer">
+                  <button 
+                    className="btn-primary btn-secondary" 
+                    onClick={() => addToCart(modalContent, modalContent.isBundle, modalContent.isBottle)}
+                  >
                     Add to Selection
                   </button>
-                  <a href={selectedSticker.wixUrl} className="btn-primary btn-secondary" target="_blank">
-                    View on Store
-                  </a>
+                  <button 
+                    className="btn-primary" 
+                    onClick={() => window.open(modalContent.wixUrl, '_blank')}
+                  >
+                    Open in New Tab
+                  </button>
                 </div>
               </div>
             </div>
