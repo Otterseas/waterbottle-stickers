@@ -3,21 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Otterseas - Sticker Selector</title>
+  <title>Otterseas - Customize Your Surface Tank</title>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ocean-deep: #0a2540;
-      --ocean-mid: #1a4d6f;
-      --ocean-light: #2d7a9e;
-      --sea-foam: #7ec8d4;
-      --sand: #f4e8d8;
-      --coral: #ff6b6b;
-      --shell: #fff5eb;
-      --seaweed: #2d5d4a;
+      --primary-navy: #1a2e3d;
+      --soft-teal: #5a9fa8;
+      --light-cream: #f9f7f4;
+      --warm-sand: #e8dfd3;
+      --coral-accent: #d97652;
+      --text-dark: #2d3e50;
+      --text-light: #6b7280;
+      --white: #ffffff;
+      --border-light: #e0d8cc;
     }
 
     * {
@@ -27,14 +28,13 @@
     }
 
     body {
-      font-family: 'Crimson Pro', serif;
-      background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean-mid) 50%, var(--ocean-light) 100%);
-      color: var(--shell);
-      min-height: 100vh;
-      overflow-x: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: var(--light-cream);
+      color: var(--text-dark);
+      line-height: 1.6;
     }
 
-    /* Decorative ocean background effect */
+    /* Subtle texture overlay */
     body::before {
       content: '';
       position: fixed;
@@ -42,9 +42,9 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: 
-        radial-gradient(circle at 20% 80%, rgba(125, 200, 212, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(45, 93, 74, 0.1) 0%, transparent 50%);
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(90, 159, 168, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(217, 118, 82, 0.03) 0%, transparent 50%);
       pointer-events: none;
       z-index: 0;
     }
@@ -52,351 +52,315 @@
     .app-container {
       position: relative;
       z-index: 1;
-      max-width: 1600px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 2rem;
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 2rem;
-      min-height: 100vh;
+      padding: 2rem 1.5rem;
     }
 
-    .main-section {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
-
-    /* Header with Water Bottle */
-    .header-section {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 1rem;
+    /* Header */
+    .page-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 2px solid var(--border-light);
     }
 
     .page-title {
-      font-family: 'Abril Fatface', cursive;
-      font-size: 3.5rem;
-      color: var(--sea-foam);
-      text-shadow: 3px 3px 0 var(--ocean-deep);
-      letter-spacing: -1px;
-      line-height: 1;
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      color: var(--primary-navy);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
     }
 
     .page-subtitle {
-      font-size: 1.2rem;
-      color: var(--sand);
+      font-size: 1.1rem;
+      color: var(--text-light);
       font-weight: 300;
-      margin-top: 0.5rem;
-      font-style: italic;
     }
 
-    .water-bottle-anchor {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
-      border: 2px solid rgba(126, 200, 212, 0.3);
-      border-radius: 20px;
-      padding: 1.5rem;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      min-width: 280px;
-      animation: float 6s ease-in-out infinite;
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 2rem;
+      align-items: start;
     }
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
+    .left-section {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
     }
 
-    .water-bottle-anchor img {
-      width: 100%;
-      height: 200px;
+    /* Water Bottle Card */
+    .water-bottle-card {
+      background: var(--white);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .bottle-image-container {
+      flex-shrink: 0;
+    }
+
+    .bottle-image-container img {
+      width: 180px;
+      height: 180px;
       object-fit: contain;
-      margin-bottom: 1rem;
     }
 
-    .water-bottle-anchor h3 {
-      font-family: 'Abril Fatface', cursive;
-      font-size: 1.5rem;
-      color: var(--sea-foam);
+    .bottle-info {
+      flex: 1;
+    }
+
+    .bottle-info h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--primary-navy);
       margin-bottom: 0.5rem;
     }
 
-    .water-bottle-anchor .price {
-      font-size: 1.8rem;
-      color: var(--coral);
+    .bottle-info p {
+      color: var(--text-light);
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .bottle-price {
+      font-size: 1.5rem;
+      color: var(--coral-accent);
       font-weight: 600;
       margin-bottom: 1rem;
     }
 
-    .water-bottle-anchor button {
-      width: 100%;
-      padding: 1rem;
-      background: linear-gradient(135deg, var(--coral), #ff8787);
-      border: none;
-      border-radius: 12px;
+    .btn-primary {
+      background: var(--soft-teal);
       color: white;
-      font-size: 1.1rem;
-      font-weight: 600;
+      border: none;
+      padding: 0.9rem 2rem;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 1rem;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
     }
 
-    .water-bottle-anchor button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+    .btn-primary:hover {
+      background: #4a8d95;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(90, 159, 168, 0.3);
     }
 
-    /* Sticker Selector Section */
+    /* Sticker Selector */
     .sticker-selector {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-      border: 2px solid rgba(126, 200, 212, 0.2);
-      border-radius: 24px;
+      background: var(--white);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
       padding: 2rem;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      flex: 1;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      min-height: 500px;
+      max-height: 650px;
       display: flex;
       flex-direction: column;
-      min-height: 500px;
-      max-height: 600px;
+    }
+
+    .selector-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .selector-header h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: var(--primary-navy);
+      margin-bottom: 1rem;
     }
 
     .tabs {
       display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      border-bottom: 2px solid rgba(126, 200, 212, 0.3);
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      border-bottom: 2px solid var(--border-light);
       padding-bottom: 1rem;
     }
 
     .tab {
-      padding: 0.75rem 1.5rem;
+      padding: 0.6rem 1.2rem;
       background: transparent;
-      border: none;
-      color: var(--sand);
-      font-size: 1.1rem;
-      font-weight: 400;
+      border: 1px solid var(--border-light);
+      color: var(--text-light);
+      font-size: 0.95rem;
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.3s ease;
-      border-radius: 12px 12px 0 0;
-      font-family: 'Crimson Pro', serif;
-      position: relative;
+      border-radius: 6px;
+      font-family: 'Montserrat', sans-serif;
     }
 
     .tab:hover {
-      background: rgba(126, 200, 212, 0.1);
-      color: var(--sea-foam);
+      background: var(--warm-sand);
+      border-color: var(--soft-teal);
     }
 
     .tab.active {
-      background: linear-gradient(135deg, rgba(126, 200, 212, 0.3), rgba(126, 200, 212, 0.1));
-      color: var(--sea-foam);
-      font-weight: 600;
-    }
-
-    .tab.active::after {
-      content: '';
-      position: absolute;
-      bottom: -1rem;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--sea-foam);
+      background: var(--soft-teal);
+      color: white;
+      border-color: var(--soft-teal);
     }
 
     .sticker-grid-container {
       flex: 1;
       overflow-y: auto;
-      padding-right: 1rem;
-      margin-right: -1rem;
+      padding-right: 0.5rem;
+      margin-top: 1.5rem;
     }
 
     .sticker-grid-container::-webkit-scrollbar {
-      width: 8px;
+      width: 6px;
     }
 
     .sticker-grid-container::-webkit-scrollbar-track {
-      background: rgba(126, 200, 212, 0.1);
+      background: var(--light-cream);
       border-radius: 10px;
     }
 
     .sticker-grid-container::-webkit-scrollbar-thumb {
-      background: var(--sea-foam);
+      background: var(--soft-teal);
       border-radius: 10px;
     }
 
     .sticker-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.25rem;
       padding-bottom: 1rem;
     }
 
     .sticker-card {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
-      border: 2px solid rgba(126, 200, 212, 0.3);
-      border-radius: 16px;
+      background: var(--light-cream);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
       padding: 1rem;
       cursor: pointer;
       transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .sticker-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, transparent, rgba(126, 200, 212, 0.2));
-      opacity: 0;
-      transition: opacity 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
     }
 
     .sticker-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-      border-color: var(--sea-foam);
-    }
-
-    .sticker-card:hover::before {
-      opacity: 1;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      border-color: var(--soft-teal);
     }
 
     .sticker-card img {
       width: 100%;
-      height: 150px;
-      object-fit: contain;
+      height: 140px;
+      object-fit: cover;
       margin-bottom: 0.75rem;
-      position: relative;
-      z-index: 1;
+      border-radius: 6px;
     }
 
     .sticker-card h4 {
-      font-size: 1.1rem;
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+      color: var(--primary-navy);
+      font-weight: 500;
+    }
+
+    .sticker-card .region {
+      font-size: 0.8rem;
+      color: var(--text-light);
       margin-bottom: 0.5rem;
-      color: var(--shell);
-      position: relative;
-      z-index: 1;
     }
 
     .sticker-card .price {
-      font-size: 1rem;
-      color: var(--coral);
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-      position: relative;
-      z-index: 1;
-    }
-
-    .sticker-card button {
-      width: 100%;
-      padding: 0.6rem;
-      background: linear-gradient(135deg, var(--sea-foam), var(--ocean-light));
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      z-index: 1;
       font-size: 0.95rem;
-    }
-
-    .sticker-card button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(126, 200, 212, 0.5);
+      color: var(--coral-accent);
+      font-weight: 600;
     }
 
     /* Bundle Section */
     .bundle-section {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-      border: 2px solid rgba(255, 107, 107, 0.3);
-      border-radius: 20px;
-      padding: 1.5rem;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      background: var(--white);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
 
     .bundle-section h3 {
-      font-family: 'Abril Fatface', cursive;
-      font-size: 1.8rem;
-      color: var(--coral);
-      margin-bottom: 1rem;
-      text-shadow: 2px 2px 0 var(--ocean-deep);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: var(--primary-navy);
+      margin-bottom: 1.5rem;
     }
 
     .bundle-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
     }
 
     .bundle-card {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
-      border: 2px solid rgba(255, 107, 107, 0.4);
-      border-radius: 16px;
-      padding: 1.25rem;
+      background: var(--light-cream);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 1.5rem;
       transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
     }
 
     .bundle-card:hover {
       transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
-      border-color: var(--coral);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      border-color: var(--coral-accent);
     }
 
     .bundle-card h4 {
       font-size: 1.2rem;
       margin-bottom: 0.5rem;
-      color: var(--shell);
+      color: var(--primary-navy);
+      font-weight: 600;
     }
 
-    .bundle-card .bundle-description {
+    .bundle-description {
       font-size: 0.9rem;
-      color: var(--sand);
+      color: var(--text-light);
       margin-bottom: 0.75rem;
-      font-style: italic;
     }
 
-    .bundle-card .price {
-      font-size: 1.5rem;
-      color: var(--coral);
-      font-weight: 600;
+    .bundle-count {
+      font-size: 0.85rem;
+      color: var(--soft-teal);
       margin-bottom: 1rem;
+      font-weight: 500;
     }
 
-    .bundle-card button {
-      width: 100%;
-      padding: 0.75rem;
-      background: linear-gradient(135deg, var(--coral), #ff8787);
-      border: none;
-      border-radius: 10px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 1rem;
-    }
-
-    .bundle-card button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.6);
+    .bundle-price {
+      font-size: 1.4rem;
+      color: var(--coral-accent);
+      font-weight: 700;
     }
 
     /* Cart Sidebar */
     .cart-sidebar {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
-      border: 2px solid rgba(126, 200, 212, 0.3);
-      border-radius: 24px;
+      background: var(--white);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
       padding: 2rem;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       position: sticky;
       top: 2rem;
       max-height: calc(100vh - 4rem);
@@ -405,18 +369,18 @@
     }
 
     .cart-sidebar h2 {
-      font-family: 'Abril Fatface', cursive;
-      font-size: 2rem;
-      color: var(--sea-foam);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--primary-navy);
       margin-bottom: 1.5rem;
-      text-shadow: 2px 2px 0 var(--ocean-deep);
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border-light);
     }
 
     .cart-items {
       flex: 1;
       overflow-y: auto;
       margin-bottom: 1.5rem;
-      padding-right: 0.5rem;
     }
 
     .cart-items::-webkit-scrollbar {
@@ -424,117 +388,122 @@
     }
 
     .cart-items::-webkit-scrollbar-track {
-      background: rgba(126, 200, 212, 0.1);
+      background: var(--light-cream);
       border-radius: 10px;
     }
 
     .cart-items::-webkit-scrollbar-thumb {
-      background: var(--sea-foam);
+      background: var(--soft-teal);
       border-radius: 10px;
     }
 
     .cart-item {
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
+      background: var(--light-cream);
+      border-radius: 8px;
       padding: 1rem;
       margin-bottom: 0.75rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border: 1px solid rgba(126, 200, 212, 0.2);
-    }
-
-    .cart-item-info {
-      flex: 1;
     }
 
     .cart-item-info h4 {
-      font-size: 1rem;
+      font-size: 0.95rem;
       margin-bottom: 0.25rem;
-      color: var(--shell);
+      color: var(--primary-navy);
+      font-weight: 500;
     }
 
     .cart-item-info .quantity {
-      font-size: 0.85rem;
-      color: var(--sand);
+      font-size: 0.8rem;
+      color: var(--text-light);
     }
 
     .cart-item button {
-      background: rgba(255, 107, 107, 0.3);
-      border: 1px solid var(--coral);
-      color: var(--coral);
-      border-radius: 6px;
+      background: transparent;
+      border: 1px solid var(--coral-accent);
+      color: var(--coral-accent);
+      border-radius: 4px;
       padding: 0.4rem 0.8rem;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       transition: all 0.3s ease;
     }
 
     .cart-item button:hover {
-      background: var(--coral);
+      background: var(--coral-accent);
       color: white;
     }
 
+    .empty-cart {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-light);
+      font-style: italic;
+    }
+
     .cart-summary {
-      border-top: 2px solid rgba(126, 200, 212, 0.3);
+      border-top: 2px solid var(--border-light);
       padding-top: 1.5rem;
+    }
+
+    .pricing-tier-info {
+      background: #f0f9fa;
+      border: 1px solid var(--soft-teal);
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: var(--text-dark);
+      text-align: center;
+    }
+
+    .minimum-warning {
+      background: #fef3f0;
+      border: 1px solid var(--coral-accent);
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: var(--coral-accent);
+      text-align: center;
     }
 
     .cart-summary-row {
       display: flex;
       justify-content: space-between;
       margin-bottom: 0.75rem;
-      font-size: 1rem;
+      font-size: 0.95rem;
+      color: var(--text-dark);
     }
 
     .cart-summary-row.total {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 600;
-      color: var(--sea-foam);
+      color: var(--primary-navy);
       margin-top: 1rem;
       padding-top: 1rem;
-      border-top: 2px solid rgba(126, 200, 212, 0.3);
-    }
-
-    .pricing-tier-info {
-      background: rgba(126, 200, 212, 0.15);
-      border: 1px solid var(--sea-foam);
-      border-radius: 8px;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      font-size: 0.9rem;
-      color: var(--sand);
-    }
-
-    .minimum-warning {
-      background: rgba(255, 107, 107, 0.2);
-      border: 1px solid var(--coral);
-      border-radius: 8px;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      font-size: 0.9rem;
-      color: var(--coral);
-      text-align: center;
+      border-top: 2px solid var(--border-light);
     }
 
     .checkout-button {
       width: 100%;
-      padding: 1.25rem;
-      background: linear-gradient(135deg, var(--sea-foam), var(--ocean-light));
-      border: none;
-      border-radius: 12px;
+      padding: 1.2rem;
+      background: var(--coral-accent);
       color: white;
-      font-size: 1.2rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.1rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(126, 200, 212, 0.4);
       margin-top: 1rem;
     }
 
     .checkout-button:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(126, 200, 212, 0.6);
+      background: #c96746;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(217, 118, 82, 0.3);
     }
 
     .checkout-button:disabled {
@@ -549,8 +518,8 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(10, 37, 64, 0.85);
-      backdrop-filter: blur(8px);
+      background: rgba(26, 46, 61, 0.7);
+      backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -564,13 +533,12 @@
     }
 
     .modal-content {
-      background: linear-gradient(135deg, var(--ocean-mid), var(--ocean-deep));
-      border: 2px solid var(--sea-foam);
-      border-radius: 24px;
+      background: var(--white);
+      border-radius: 12px;
       padding: 2.5rem;
       max-width: 600px;
       width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       animation: slideUp 0.3s ease;
       position: relative;
     }
@@ -584,9 +552,9 @@
       position: absolute;
       top: 1rem;
       right: 1rem;
-      background: rgba(255, 107, 107, 0.3);
-      border: 1px solid var(--coral);
-      color: var(--coral);
+      background: transparent;
+      border: 1px solid var(--border-light);
+      color: var(--text-light);
       border-radius: 50%;
       width: 36px;
       height: 36px;
@@ -599,9 +567,9 @@
     }
 
     .modal-close:hover {
-      background: var(--coral);
+      background: var(--coral-accent);
       color: white;
-      transform: rotate(90deg);
+      border-color: var(--coral-accent);
     }
 
     .modal-content img {
@@ -609,58 +577,58 @@
       max-height: 300px;
       object-fit: contain;
       margin-bottom: 1.5rem;
-      border-radius: 16px;
+      border-radius: 8px;
     }
 
     .modal-content h3 {
-      font-family: 'Abril Fatface', cursive;
+      font-family: 'Playfair Display', serif;
       font-size: 2rem;
-      color: var(--sea-foam);
+      color: var(--primary-navy);
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-content .region {
+      font-size: 1rem;
+      color: var(--text-light);
       margin-bottom: 1rem;
     }
 
     .modal-content .description {
-      font-size: 1.1rem;
-      color: var(--sand);
+      font-size: 1rem;
+      color: var(--text-dark);
       margin-bottom: 1.5rem;
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
     .modal-content .price {
-      font-size: 2rem;
-      color: var(--coral);
+      font-size: 1.8rem;
+      color: var(--coral-accent);
       font-weight: 600;
       margin-bottom: 1.5rem;
     }
 
-    .modal-content button {
-      width: 100%;
-      padding: 1.25rem;
-      background: linear-gradient(135deg, var(--sea-foam), var(--ocean-light));
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-size: 1.2rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(126, 200, 212, 0.4);
+    .modal-buttons {
+      display: flex;
+      gap: 1rem;
     }
 
-    .modal-content button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(126, 200, 212, 0.6);
+    .modal-buttons .btn-primary {
+      flex: 1;
     }
 
-    .empty-cart {
-      text-align: center;
-      padding: 2rem 0;
-      color: var(--sand);
-      font-style: italic;
+    .modal-buttons .btn-secondary {
+      flex: 1;
+      background: var(--light-cream);
+      color: var(--primary-navy);
+      border: 1px solid var(--border-light);
+    }
+
+    .modal-buttons .btn-secondary:hover {
+      background: var(--warm-sand);
     }
 
     @media (max-width: 1024px) {
-      .app-container {
+      .main-content {
         grid-template-columns: 1fr;
       }
 
@@ -670,13 +638,23 @@
         max-height: none;
       }
 
-      .header-section {
+      .water-bottle-card {
         flex-direction: column;
-        gap: 2rem;
+        text-align: center;
       }
 
-      .water-bottle-anchor {
-        width: 100%;
+      .page-title {
+        font-size: 2.2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sticker-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+
+      .bundle-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -685,44 +663,44 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState } = React;
 
-    // Sample data - Replace with your actual product data
-    const SAMPLE_STICKERS = {
+    // CONFIGURATION: Replace these with your actual Wix product URLs and data
+    const STICKERS = {
       Asia: [
-        { id: 'asia-1', name: 'Raja Ampat, Indonesia', region: 'Asia', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=Raja+Ampat', description: 'Vibrant coral reefs and incredible marine biodiversity in the heart of the Coral Triangle.' },
-        { id: 'asia-2', name: 'Similan Islands, Thailand', region: 'Asia', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=Similan', description: 'Crystal clear waters and dramatic underwater rock formations.' },
-        { id: 'asia-3', name: 'Tubbataha Reef, Philippines', region: 'Asia', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=Tubbataha', description: 'UNESCO World Heritage site with pristine coral walls.' },
-        { id: 'asia-4', name: 'Sipadan, Malaysia', region: 'Asia', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=Sipadan', description: 'Famous for turtle encounters and dramatic drop-offs.' },
+        { id: 'asia-raja-ampat', name: 'Raja Ampat', region: 'Asia', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/raja-ampat', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Raja+Ampat', description: 'Vibrant coral reefs in the heart of the Coral Triangle' },
+        { id: 'asia-komodo', name: 'Komodo', region: 'Asia', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/komodo', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Komodo', description: 'Dramatic currents and manta encounters' },
+        { id: 'asia-tubbataha', name: 'Tubbataha', region: 'Asia', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/tubbataha', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Tubbataha', description: 'UNESCO World Heritage pristine coral walls' },
+        { id: 'asia-similan', name: 'Similan Islands', region: 'Asia', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/similan-islands', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Similan', description: 'Crystal clear waters and underwater boulders' },
       ],
       Europe: [
-        { id: 'europe-1', name: 'Malta Blue Hole', region: 'Europe', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=Malta', description: 'Mediterranean diving with dramatic rock formations.' },
-        { id: 'europe-2', name: 'Greek Islands', region: 'Europe', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=Greece', description: 'Ancient shipwrecks and clear Aegean waters.' },
-        { id: 'europe-3', name: 'Azores, Portugal', region: 'Europe', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=Azores', description: 'Pelagic encounters in the Atlantic.' },
+        { id: 'europe-malta', name: 'Malta Blue Hole', region: 'Europe', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/malta', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Malta', description: 'Mediterranean diving with dramatic formations' },
+        { id: 'europe-azores', name: 'Azores', region: 'Europe', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/azores', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Azores', description: 'Pelagic encounters in the Atlantic' },
+        { id: 'europe-scapa', name: 'Scapa Flow', region: 'Europe', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/scapa-flow', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Scapa', description: 'Historic WWI shipwrecks' },
       ],
       Americas: [
-        { id: 'americas-1', name: 'Galápagos, Ecuador', region: 'Americas', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=Galapagos', description: 'Hammerhead sharks and unique island wildlife.' },
-        { id: 'americas-2', name: 'Cozumel, Mexico', region: 'Americas', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=Cozumel', description: 'Drift diving through colorful Caribbean reefs.' },
-        { id: 'americas-3', name: 'Bonaire', region: 'Americas', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=Bonaire', description: 'Shore diving paradise with pristine reefs.' },
-        { id: 'americas-4', name: 'Roatán, Honduras', region: 'Americas', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=Roatan', description: 'Part of the Mesoamerican Barrier Reef System.' },
+        { id: 'americas-galapagos', name: 'Galápagos', region: 'Americas', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/galapagos', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Galapagos', description: 'Hammerhead sharks and unique wildlife' },
+        { id: 'americas-socorro', name: 'Socorro', region: 'Americas', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/socorro', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Socorro', description: 'Giant manta interactions' },
+        { id: 'americas-bonaire', name: 'Bonaire', region: 'Americas', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/bonaire', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Bonaire', description: 'Shore diving paradise' },
+        { id: 'americas-cozumel', name: 'Cozumel', region: 'Americas', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/cozumel', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Cozumel', description: 'Caribbean drift diving' },
       ],
-      Pacific: [
-        { id: 'pacific-1', name: 'Great Barrier Reef', region: 'Pacific', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=GBR', description: 'World\'s largest coral reef system.' },
-        { id: 'pacific-2', name: 'Palau', region: 'Pacific', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=Palau', description: 'Jellyfish Lake and pristine blue corners.' },
-        { id: 'pacific-3', name: 'Fiji', region: 'Pacific', price: 4.00, image: 'https://via.placeholder.com/200x200/2d7a9e/ffffff?text=Fiji', description: 'Soft coral capital of the world.' },
+      Oceania: [
+        { id: 'oceania-gbr', name: 'Great Barrier Reef', region: 'Oceania', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/great-barrier-reef', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=GBR', description: 'World\'s largest coral reef system' },
+        { id: 'oceania-palau', name: 'Palau', region: 'Oceania', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/palau', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Palau', description: 'Jellyfish Lake and blue corners' },
+        { id: 'oceania-fiji', name: 'Fiji', region: 'Oceania', price: 3.50, wixUrl: 'https://www.otterseas.com/product-page/fiji', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Fiji', description: 'Soft coral capital of the world' },
       ],
     };
 
     const BUNDLES = [
-      { id: 'bundle-1', name: 'Tropical Explorer', description: 'Warm water favorites from around the globe', count: 8, price: 28.00 },
-      { id: 'bundle-2', name: 'Mediterranean Adventure', description: 'European diving destinations', count: 6, price: 22.00 },
-      { id: 'bundle-3', name: 'Pacific Paradise', description: 'Best of the Pacific Ocean', count: 10, price: 35.00 },
+      { id: 'bundle-tropical', name: 'Tropical Explorer Pack', description: 'Warm water favorites from around the globe', count: 8, price: 25.00, wixUrl: 'https://www.otterseas.com/product-page/tropical-bundle' },
+      { id: 'bundle-pacific', name: 'Pacific Paradise Pack', description: 'Best of the Pacific Ocean', count: 10, price: 32.00, wixUrl: 'https://www.otterseas.com/product-page/pacific-bundle' },
+      { id: 'bundle-adventure', name: 'Adventure Seeker Pack', description: 'For the adventurous diver', count: 6, price: 20.00, wixUrl: 'https://www.otterseas.com/product-page/adventure-bundle' },
     ];
 
     const PRICING_TIERS = [
-      { min: 1, max: 9, price: 4.00 },
-      { min: 10, max: 19, price: 3.50 },
-      { min: 20, max: Infinity, price: 3.00 },
+      { min: 1, max: 9, price: 3.50 },
+      { min: 10, max: 19, price: 3.00 },
+      { min: 20, max: Infinity, price: 2.50 },
     ];
 
     function StickerSelector() {
@@ -783,147 +761,159 @@
       };
 
       const handleCheckout = () => {
-        // This is where you'd integrate with Wix
-        const checkoutData = {
-          items: cart,
-          total: calculateTotal(),
-          stickerCount: getStickerCount(),
-        };
-        console.log('Checkout data:', checkoutData);
-        alert('Integration with Wix checkout - see console for cart data');
-        // You would redirect to Wix or call Wix API here
+        alert('Note: This is a demo. In production, you would:\n\n1. Save cart data to session\n2. Redirect to Wix checkout\n3. Or use Wix API to add items\n\nSee integration guide for details.');
+        console.log('Cart data:', cart);
       };
 
       return (
         <div className="app-container">
-          <div className="main-section">
-            <div className="header-section">
-              <div>
-                <h1 className="page-title">Customize Your Bottle</h1>
-                <p className="page-subtitle">Select your favorite dive destinations</p>
-              </div>
-              <div className="water-bottle-anchor">
-                <img src="https://via.placeholder.com/280x200/1a4d6f/ffffff?text=Water+Bottle" alt="Otterseas Water Bottle" />
-                <h3>Otterseas Water Bottle</h3>
-                <div className="price">$24.99</div>
-                <button onClick={() => addToCart({ id: 'water-bottle', name: 'Otterseas Water Bottle', price: 24.99 }, false)}>
-                  Add to Cart
-                </button>
-              </div>
-            </div>
+          <header className="page-header">
+            <h1 className="page-title">Customize Your Surface Tank</h1>
+            <p className="page-subtitle">Select stickers from your favorite dive destinations</p>
+          </header>
 
-            <div className="sticker-selector">
-              <div className="tabs">
-                {Object.keys(SAMPLE_STICKERS).map(region => (
-                  <button
-                    key={region}
-                    className={`tab ${activeTab === region ? 'active' : ''}`}
-                    onClick={() => setActiveTab(region)}
-                  >
-                    {region}
-                  </button>
-                ))}
+          <div className="main-content">
+            <div className="left-section">
+              {/* Water Bottle */}
+              <div className="water-bottle-card">
+                <div className="bottle-image-container">
+                  <img src="https://via.placeholder.com/180x180/1a2e3d/ffffff?text=Surface+Tank" alt="The Surface Tank" />
+                </div>
+                <div className="bottle-info">
+                  <h2>The Surface Tank</h2>
+                  <p>Premium water bottle designed for divers. Double-walled vacuum insulation. 40oz capacity.</p>
+                  <div className="bottle-price">£40.00</div>
+                  <a href="https://www.otterseas.com/product-page/the-surface-tank-water-bottle-pre-sale" className="btn-primary" target="_blank">
+                    View Product
+                  </a>
+                </div>
               </div>
 
-              <div className="sticker-grid-container">
-                <div className="sticker-grid">
-                  {SAMPLE_STICKERS[activeTab].map(sticker => (
-                    <div key={sticker.id} className="sticker-card" onClick={() => setSelectedSticker(sticker)}>
-                      <img src={sticker.image} alt={sticker.name} />
-                      <h4>{sticker.name}</h4>
-                      <div className="price">${sticker.price.toFixed(2)}</div>
-                      <button onClick={(e) => { e.stopPropagation(); addToCart(sticker); }}>
-                        Add to Cart
+              {/* Sticker Selector */}
+              <div className="sticker-selector">
+                <div className="selector-header">
+                  <h3>Choose Your Stickers</h3>
+                  <div className="tabs">
+                    {Object.keys(STICKERS).map(region => (
+                      <button
+                        key={region}
+                        className={`tab ${activeTab === region ? 'active' : ''}`}
+                        onClick={() => setActiveTab(region)}
+                      >
+                        {region}
                       </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="sticker-grid-container">
+                  <div className="sticker-grid">
+                    {STICKERS[activeTab].map(sticker => (
+                      <div key={sticker.id} className="sticker-card" onClick={() => setSelectedSticker(sticker)}>
+                        <img src={sticker.image} alt={sticker.name} />
+                        <h4>{sticker.name}</h4>
+                        <div className="region">{sticker.region}</div>
+                        <div className="price">£{sticker.price.toFixed(2)}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Bundles */}
+              <div className="bundle-section">
+                <h3>Pre-Selected Bundles</h3>
+                <div className="bundle-grid">
+                  {BUNDLES.map(bundle => (
+                    <div key={bundle.id} className="bundle-card" onClick={() => setSelectedSticker({ ...bundle, isBundle: true })}>
+                      <h4>{bundle.name}</h4>
+                      <div className="bundle-description">{bundle.description}</div>
+                      <div className="bundle-count">{bundle.count} stickers included</div>
+                      <div className="bundle-price">£{bundle.price.toFixed(2)}</div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="bundle-section">
-              <h3>Pre-Selected Bundles</h3>
-              <div className="bundle-grid">
-                {BUNDLES.map(bundle => (
-                  <div key={bundle.id} className="bundle-card">
-                    <h4>{bundle.name}</h4>
-                    <div className="bundle-description">{bundle.description}</div>
-                    <div className="price">${bundle.price.toFixed(2)}</div>
-                    <button onClick={() => addToCart(bundle, true)}>
-                      Add Bundle ({bundle.count} stickers)
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+            {/* Cart */}
+            <aside className="cart-sidebar">
+              <h2>Your Selection</h2>
 
-          <div className="cart-sidebar">
-            <h2>Your Selection</h2>
-
-            <div className="cart-items">
-              {cart.length === 0 ? (
-                <div className="empty-cart">Your cart is empty</div>
-              ) : (
-                cart.map(item => (
-                  <div key={item.id} className="cart-item">
-                    <div className="cart-item-info">
-                      <h4>{item.name}</h4>
-                      <div className="quantity">
-                        Qty: {item.quantity} {item.isBundle && `(${item.count} stickers)`}
+              <div className="cart-items">
+                {cart.length === 0 ? (
+                  <div className="empty-cart">No items selected yet</div>
+                ) : (
+                  cart.map(item => (
+                    <div key={item.id} className="cart-item">
+                      <div className="cart-item-info">
+                        <h4>{item.name}</h4>
+                        <div className="quantity">
+                          Qty: {item.quantity} {item.isBundle && `(${item.count} stickers)`}
+                        </div>
                       </div>
+                      <button onClick={() => removeFromCart(item.id)}>Remove</button>
                     </div>
-                    <button onClick={() => removeFromCart(item.id)}>Remove</button>
+                  ))
+                )}
+              </div>
+
+              <div className="cart-summary">
+                {getStickerCount() > 0 && (
+                  <div className="pricing-tier-info">
+                    {getStickerCount()} stickers @ £{getCurrentTier()?.price.toFixed(2)} each
                   </div>
-                ))
-              )}
-            </div>
+                )}
 
-            <div className="cart-summary">
-              {getStickerCount() > 0 && (
-                <div className="pricing-tier-info">
-                  Current tier: {getStickerCount()} stickers @ ${getCurrentTier()?.price.toFixed(2)} each
+                {!canCheckout() && (
+                  <div className="minimum-warning">
+                    Minimum 5 stickers required
+                  </div>
+                )}
+
+                <div className="cart-summary-row">
+                  <span>Individual Stickers:</span>
+                  <span>{getStickerCount()}</span>
                 </div>
-              )}
-
-              {!canCheckout() && (
-                <div className="minimum-warning">
-                  Minimum 5 stickers required to checkout
+                <div className="cart-summary-row">
+                  <span>Bundles:</span>
+                  <span>{cart.filter(i => i.isBundle).length}</span>
                 </div>
-              )}
+                <div className="cart-summary-row total">
+                  <span>Total:</span>
+                  <span>£{calculateTotal()}</span>
+                </div>
 
-              <div className="cart-summary-row">
-                <span>Individual Stickers:</span>
-                <span>{getStickerCount()}</span>
+                <button 
+                  className="checkout-button" 
+                  disabled={!canCheckout()}
+                  onClick={handleCheckout}
+                >
+                  Continue to Checkout
+                </button>
               </div>
-              <div className="cart-summary-row">
-                <span>Bundles:</span>
-                <span>{cart.filter(i => i.isBundle).length}</span>
-              </div>
-              <div className="cart-summary-row total">
-                <span>Total:</span>
-                <span>${calculateTotal()}</span>
-              </div>
-
-              <button 
-                className="checkout-button" 
-                disabled={!canCheckout()}
-                onClick={handleCheckout}
-              >
-                Checkout with Wix
-              </button>
-            </div>
+            </aside>
           </div>
 
+          {/* Modal */}
           {selectedSticker && (
             <div className="modal-overlay" onClick={() => setSelectedSticker(null)}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <button className="modal-close" onClick={() => setSelectedSticker(null)}>×</button>
-                <img src={selectedSticker.image} alt={selectedSticker.name} />
+                <img src={selectedSticker.image || 'https://via.placeholder.com/600x300'} alt={selectedSticker.name} />
                 <h3>{selectedSticker.name}</h3>
+                {!selectedSticker.isBundle && <div className="region">{selectedSticker.region}</div>}
+                {selectedSticker.isBundle && <div className="region">{selectedSticker.count} stickers included</div>}
                 <div className="description">{selectedSticker.description}</div>
-                <div className="price">${selectedSticker.price.toFixed(2)}</div>
-                <button onClick={() => addToCart(selectedSticker)}>Add to Cart</button>
+                <div className="price">£{selectedSticker.price.toFixed(2)}</div>
+                <div className="modal-buttons">
+                  <button className="btn-primary" onClick={() => addToCart(selectedSticker, selectedSticker.isBundle)}>
+                    Add to Selection
+                  </button>
+                  <a href={selectedSticker.wixUrl} className="btn-primary btn-secondary" target="_blank">
+                    View on Store
+                  </a>
+                </div>
               </div>
             </div>
           )}
