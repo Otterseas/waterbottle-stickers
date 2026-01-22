@@ -1,1169 +1,277 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Otterseas - Customize Your Surface Tank</title>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary-navy: #1a2e3d;
-      --soft-teal: #5a9fa8;
-      --light-cream: #f9f7f4;
-      --warm-sand: #e8dfd3;
-      --coral-accent: #d97652;
-      --text-dark: #2d3e50;
-      --text-light: #6b7280;
-      --white: #ffffff;
-      --border-light: #e0d8cc;
-      --success-green: #4a9d7a;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background: var(--light-cream);
-      color: var(--text-dark);
-      line-height: 1.6;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        radial-gradient(circle at 20% 50%, rgba(90, 159, 168, 0.03) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(217, 118, 82, 0.03) 0%, transparent 50%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .app-container {
-      position: relative;
-      z-index: 1;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 1.5rem 1rem;
-    }
-
-    .page-header {
-      text-align: center;
-      margin-bottom: 2rem;
-      padding-bottom: 1.5rem;
-      border-bottom: 2px solid var(--border-light);
-    }
-
-    .page-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 3rem;
-      color: var(--primary-navy);
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      letter-spacing: -0.5px;
-    }
-
-    .page-subtitle {
-      font-size: 1.1rem;
-      color: var(--text-light);
-      font-weight: 300;
-    }
-
-    .main-content {
-      display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 1.5rem;
-      align-items: start;
-    }
-
-    .left-section {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    /* Water Bottle Card */
-    .water-bottle-card {
-      background: var(--white);
-      border: 1px solid var(--border-light);
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .water-bottle-card:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-      border-color: var(--soft-teal);
-    }
-
-    .bottle-image-container {
-      flex-shrink: 0;
-    }
-
-    .bottle-image-container img {
-      width: 180px;
-      height: 180px;
-      object-fit: contain;
-    }
-
-    .bottle-info {
-      flex: 1;
-    }
-
-    .bottle-info h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
-      color: var(--primary-navy);
-      margin-bottom: 0.5rem;
-    }
-
-    .bottle-info p {
-      color: var(--text-light);
-      margin-bottom: 1rem;
-      font-size: 0.95rem;
-    }
-
-    .bottle-price {
-      font-size: 1.5rem;
-      color: var(--coral-accent);
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-
-    .bottle-actions {
-      display: flex;
-      gap: 1rem;
-    }
-
-    .btn-primary {
-      background: var(--soft-teal);
-      color: white;
-      border: none;
-      padding: 0.9rem 2rem;
-      border-radius: 6px;
-      font-weight: 500;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      display: inline-block;
-      text-align: center;
-    }
-
-    .btn-primary:hover {
-      background: #4a8d95;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(90, 159, 168, 0.3);
-    }
-
-    .btn-secondary {
-      background: white;
-      color: var(--soft-teal);
-      border: 2px solid var(--soft-teal);
-    }
-
-    .btn-secondary:hover {
-      background: var(--soft-teal);
-      color: white;
-    }
-
-    /* Sticker Selector */
-    .sticker-selector {
-      background: var(--white);
-      border: 1px solid var(--border-light);
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-      min-height: 500px;
-      max-height: 650px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .selector-header {
-      margin-bottom: 1rem;
-    }
-
-    .selector-header h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.6rem;
-      color: var(--primary-navy);
-      margin-bottom: 0.75rem;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      border-bottom: 2px solid var(--border-light);
-      padding-bottom: 1rem;
-    }
-
-    .tab {
-      padding: 0.6rem 1.2rem;
-      background: transparent;
-      border: 1px solid var(--border-light);
-      color: var(--text-light);
-      font-size: 0.95rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border-radius: 6px;
-      font-family: 'Montserrat', sans-serif;
-    }
-
-    .tab:hover {
-      background: var(--warm-sand);
-      border-color: var(--soft-teal);
-    }
-
-    .tab.active {
-      background: var(--soft-teal);
-      color: white;
-      border-color: var(--soft-teal);
-    }
-
-    .sticker-grid-container {
-      flex: 1;
-      overflow-y: auto;
-      padding-right: 0.5rem;
-      margin-top: 1.5rem;
-    }
-
-    .sticker-grid-container::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .sticker-grid-container::-webkit-scrollbar-track {
-      background: var(--light-cream);
-      border-radius: 10px;
-    }
-
-    .sticker-grid-container::-webkit-scrollbar-thumb {
-      background: var(--soft-teal);
-      border-radius: 10px;
-    }
-
-    .sticker-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 1.25rem;
-      padding-bottom: 1rem;
-    }
-
-    .sticker-card {
-      background: var(--light-cream);
-      border: 1px solid var(--border-light);
-      border-radius: 10px;
-      padding: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sticker-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-      border-color: var(--soft-teal);
-    }
-
-    .sticker-card img {
-      width: 100%;
-      height: 140px;
-      object-fit: cover;
-      margin-bottom: 0.75rem;
-      border-radius: 6px;
-    }
-
-    .sticker-card-info {
-      flex: 1;
-    }
-
-    .sticker-card h4 {
-      font-size: 1rem;
-      margin-bottom: 0.4rem;
-      color: var(--primary-navy);
-      font-weight: 500;
-    }
-
-    .sticker-card .region {
-      font-size: 0.8rem;
-      color: var(--text-light);
-      margin-bottom: 0.5rem;
-    }
-
-    .sticker-card .price {
-      font-size: 0.95rem;
-      color: var(--coral-accent);
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-    }
-
-    .sticker-card-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .btn-add-small {
-      flex: 1;
-      padding: 0.5rem;
-      background: var(--soft-teal);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: 500;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-add-small:hover {
-      background: #4a8d95;
-      transform: translateY(-1px);
-    }
-
-    .btn-view-small {
-      flex: 1;
-      padding: 0.5rem;
-      background: white;
-      color: var(--soft-teal);
-      border: 1px solid var(--soft-teal);
-      border-radius: 6px;
-      font-weight: 500;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-view-small:hover {
-      background: var(--soft-teal);
-      color: white;
-    }
-
-    /* Bundle Section */
-    .bundle-section {
-      background: var(--white);
-      border: 1px solid var(--border-light);
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    }
-
-    .bundle-section h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.6rem;
-      color: var(--primary-navy);
-      margin-bottom: 1rem;
-    }
-
-    .bundle-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
-    }
-
-    .bundle-card {
-      background: var(--light-cream);
-      border: 1px solid var(--border-light);
-      border-radius: 10px;
-      padding: 1.25rem;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
-    }
-
-    .bundle-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-      border-color: var(--coral-accent);
-    }
-
-    .bundle-card-info {
-      flex: 1;
-    }
-
-    .bundle-card h4 {
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
-      color: var(--primary-navy);
-      font-weight: 600;
-    }
-
-    .bundle-description {
-      font-size: 0.9rem;
-      color: var(--text-light);
-      margin-bottom: 0.75rem;
-    }
-
-    .bundle-count {
-      font-size: 0.85rem;
-      color: var(--soft-teal);
-      margin-bottom: 0.75rem;
-      font-weight: 500;
-    }
-
-    .bundle-price {
-      font-size: 1.4rem;
-      color: var(--coral-accent);
-      font-weight: 700;
-      margin-bottom: 0.75rem;
-    }
-
-    .bundle-card-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    /* Cart Sidebar */
-    .cart-sidebar {
-      background: var(--white);
-      border: 1px solid var(--border-light);
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-      position: sticky;
-      top: 1.5rem;
-      max-height: calc(100vh - 3rem);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .cart-sidebar h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
-      color: var(--primary-navy);
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 2px solid var(--border-light);
-    }
-
-    .cart-items {
-      flex: 1;
-      overflow-y: auto;
-      margin-bottom: 1rem;
-    }
-
-    .cart-items::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .cart-items::-webkit-scrollbar-track {
-      background: var(--light-cream);
-      border-radius: 10px;
-    }
-
-    .cart-items::-webkit-scrollbar-thumb {
-      background: var(--soft-teal);
-      border-radius: 10px;
-    }
-
-    .cart-item {
-      background: var(--light-cream);
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 0.75rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .cart-item-info h4 {
-      font-size: 0.95rem;
-      margin-bottom: 0.25rem;
-      color: var(--primary-navy);
-      font-weight: 500;
-    }
-
-    .cart-item-info .quantity {
-      font-size: 0.8rem;
-      color: var(--text-light);
-    }
-
-    .cart-item-info .discounted {
-      font-size: 0.75rem;
-      color: var(--success-green);
-      font-weight: 500;
-    }
-
-    .cart-item button {
-      background: transparent;
-      border: 1px solid var(--coral-accent);
-      color: var(--coral-accent);
-      border-radius: 4px;
-      padding: 0.4rem 0.8rem;
-      cursor: pointer;
-      font-size: 0.8rem;
-      transition: all 0.3s ease;
-    }
-
-    .cart-item button:hover {
-      background: var(--coral-accent);
-      color: white;
-    }
-
-    .empty-cart {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--text-light);
-      font-style: italic;
-    }
-
-    .cart-summary {
-      border-top: 2px solid var(--border-light);
-      padding-top: 1rem;
-    }
-
-    .pricing-tier-info {
-      background: #f0f9fa;
-      border: 1px solid var(--soft-teal);
-      border-radius: 6px;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      font-size: 0.85rem;
-      color: var(--text-dark);
-    }
-
-    .pricing-tier-info .tier-title {
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--soft-teal);
-    }
-
-    .pricing-tier-info .tier-details {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .pricing-tier-info .discount-amount {
-      color: var(--success-green);
-      font-weight: 600;
-    }
-
-    .minimum-warning {
-      background: #fef3f0;
-      border: 1px solid var(--coral-accent);
-      border-radius: 6px;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      font-size: 0.85rem;
-      color: var(--coral-accent);
-      text-align: center;
-    }
-
-    .cart-summary-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.75rem;
-      font-size: 0.95rem;
-      color: var(--text-dark);
-    }
-
-    .cart-summary-row.discount {
-      color: var(--success-green);
-      font-weight: 500;
-    }
-
-    .cart-summary-row.total {
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: var(--primary-navy);
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 2px solid var(--border-light);
-    }
-
-    .checkout-button {
-      width: 100%;
-      padding: 1.2rem;
-      background: var(--coral-accent);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 1rem;
-    }
-
-    .checkout-button:hover:not(:disabled) {
-      background: #c96746;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(217, 118, 82, 0.3);
-    }
-
-    .checkout-button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* Modal with iframe */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(26, 46, 61, 0.85);
-      backdrop-filter: blur(4px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      animation: fadeIn 0.3s ease;
-      padding: 1rem;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .modal-content {
-      background: var(--white);
-      border-radius: 8px;
-      max-width: 1200px;
-      width: 95%;
-      height: 85vh;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      animation: slideUp 0.3s ease;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    .modal-header {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid var(--border-light);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-shrink: 0;
-    }
-
-    .modal-header h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.2rem;
-      color: var(--primary-navy);
-      margin: 0;
-    }
-
-    .modal-close {
-      background: transparent;
-      border: 1px solid var(--border-light);
-      color: var(--text-light);
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      cursor: pointer;
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      flex-shrink: 0;
-    }
-
-    .modal-close:hover {
-      background: var(--coral-accent);
-      color: white;
-      border-color: var(--coral-accent);
-    }
-
-    .modal-body {
-      flex: 1;
-      overflow: hidden;
-      position: relative;
-      min-height: 0;
-    }
-
-    .modal-body iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
-    }
-
-    .modal-footer {
-      padding: 0.75rem 1rem;
-      border-top: 1px solid var(--border-light);
-      display: flex;
-      gap: 0.75rem;
-      justify-content: flex-end;
-      flex-shrink: 0;
-    }
-
-    .modal-footer .btn-primary {
-      padding: 0.65rem 1.25rem;
-      font-size: 0.95rem;
-    }
-
-    @media (max-width: 1024px) {
-      .main-content {
-        grid-template-columns: 1fr;
-      }
-
-      .cart-sidebar {
-        position: relative;
-        top: 0;
-        max-height: none;
-      }
-
-      .water-bottle-card {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .bottle-actions {
-        flex-direction: column;
-        width: 100%;
-      }
-
-      .bottle-actions .btn-primary,
-      .bottle-actions .btn-secondary {
-        width: 100%;
-      }
-
-      .page-title {
-        font-size: 2.2rem;
-      }
-
-      .modal-content {
-        max-width: 98%;
-        width: 98%;
-        height: 90vh;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .sticker-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      }
-
-      .bundle-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .modal-overlay {
-        padding: 0.5rem;
-      }
-
-      .modal-content {
-        height: 95vh;
-      }
-
-      .sticker-card-actions,
-      .bundle-card-actions {
-        flex-direction: column;
-      }
-
-      .btn-add-small,
-      .btn-view-small {
-        width: 100%;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
-
-  <script type="text/babel">
-    const { useState } = React;
-
-    // CONFIGURATION: Update these with your actual Wix product URLs and data
-    const WATER_BOTTLE = {
-      id: 'water-bottle',
-      name: 'The Surface Tank',
-      description: 'Premium water bottle designed for divers. Double-walled vacuum insulation. 40oz capacity.',
-      price: 40.00,
-      wixUrl: 'https://www.otterseas.com/product-page/the-surface-tank-water-bottle-pre-sale',
-      wixProductId: 'YOUR_WIX_PRODUCT_ID', // Get from Wix
-      image: 'https://via.placeholder.com/180x180/1a2e3d/ffffff?text=Surface+Tank'
-    };
-
-    const STICKERS = {
-      Asia: [
-        { id: 'asia-raja-ampat', name: 'Raja Ampat', region: 'Asia', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/raja-ampat', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Raja+Ampat', description: 'Vibrant coral reefs in the heart of the Coral Triangle' },
-        { id: 'asia-komodo', name: 'Komodo', region: 'Asia', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/komodo', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Komodo', description: 'Dramatic currents and manta encounters' },
-        { id: 'asia-tubbataha', name: 'Tubbataha', region: 'Asia', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/tubbataha', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Tubbataha', description: 'UNESCO World Heritage pristine coral walls' },
-      ],
-      Europe: [
-        { id: 'europe-malta', name: 'Malta Blue Hole', region: 'Europe', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/malta', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Malta', description: 'Mediterranean diving with dramatic formations' },
-        { id: 'europe-azores', name: 'Azores', region: 'Europe', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/azores', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Azores', description: 'Pelagic encounters in the Atlantic' },
-      ],
-      Americas: [
-        { id: 'americas-galapagos', name: 'Galápagos', region: 'Americas', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/galapagos', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Galapagos', description: 'Hammerhead sharks and unique wildlife' },
-        { id: 'americas-socorro', name: 'Socorro', region: 'Americas', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/socorro', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Socorro', description: 'Giant manta interactions' },
-      ],
-      Oceania: [
-        { id: 'oceania-gbr', name: 'Great Barrier Reef', region: 'Oceania', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/great-barrier-reef', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=GBR', description: 'World\'s largest coral reef system' },
-        { id: 'oceania-palau', name: 'Palau', region: 'Oceania', basePrice: 3.50, wixUrl: 'https://www.otterseas.com/product-page/palau', wixProductId: 'YOUR_WIX_ID', image: 'https://via.placeholder.com/200x200/5a9fa8/ffffff?text=Palau', description: 'Jellyfish Lake and blue corners' },
-      ],
-    };
-
-    const BUNDLES = [
-      { id: 'bundle-tropical', name: 'Tropical Explorer Pack', description: 'Warm water favorites from around the globe', count: 8, price: 25.00, wixUrl: 'https://www.otterseas.com/product-page/tropical-bundle', wixProductId: 'YOUR_WIX_ID' },
-      { id: 'bundle-pacific', name: 'Pacific Paradise Pack', description: 'Best of the Pacific Ocean', count: 10, price: 32.00, wixUrl: 'https://www.otterseas.com/product-page/pacific-bundle', wixProductId: 'YOUR_WIX_ID' },
-    ];
-
-    // Discount tiers: basePrice minus discount
-    const DISCOUNT_TIERS = [
-      { min: 5, max: 9, discount: 0.35 },   // £3.50 - £0.35 = £3.15
-      { min: 10, max: Infinity, discount: 0.55 },  // £3.50 - £0.55 = £2.95
-    ];
-
-    function StickerSelector() {
-      const [activeTab, setActiveTab] = useState('Asia');
-      const [cart, setCart] = useState([]);
-      const [modalContent, setModalContent] = useState(null);
-
-      const addToCart = (item, isBundle = false, isBottle = false) => {
-        setCart(prev => {
-          const existing = prev.find(i => i.id === item.id);
-          if (existing) {
-            return prev.map(i => 
-              i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-            );
-          }
-          return [...prev, { ...item, quantity: 1, isBundle, isBottle }];
-        });
-        setModalContent(null);
-      };
-
-      const removeFromCart = (id) => {
-        setCart(prev => prev.filter(item => item.id !== id));
-      };
-
-      const getStickerCount = () => {
-        return cart.reduce((total, item) => {
-          if (!item.isBundle && !item.isBottle) {
-            return total + item.quantity;
-          }
-          return total;
-        }, 0);
-      };
-
-      const getCurrentDiscount = () => {
-        const count = getStickerCount();
-        const tier = DISCOUNT_TIERS.find(t => count >= t.min && count <= t.max);
-        return tier ? tier.discount : 0;
-      };
-
-      const calculateSubtotal = () => {
-        let total = 0;
-        cart.forEach(item => {
-          if (item.isBundle || item.isBottle) {
-            total += item.price * item.quantity;
-          } else {
-            total += item.basePrice * item.quantity;
-          }
-        });
-        return total;
-      };
-
-      const calculateDiscount = () => {
-        const discount = getCurrentDiscount();
-        const stickerCount = getStickerCount();
-        return discount * stickerCount;
-      };
-
-      const calculateTotal = () => {
-        return (calculateSubtotal() - calculateDiscount()).toFixed(2);
-      };
-
-      const canCheckout = () => {
-        const stickerCount = getStickerCount();
-        return stickerCount >= 5 || cart.some(item => item.isBundle);
-      };
-
-      const handleCheckout = () => {
-        // Prepare cart data for Wix integration
-        const cartData = {
-          items: cart.map(item => ({
-            productId: item.wixProductId,
-            quantity: item.quantity,
-            name: item.name,
-            price: item.isBundle || item.isBottle ? item.price : (item.basePrice - getCurrentDiscount())
-          })),
-          subtotal: calculateSubtotal(),
-          discount: calculateDiscount(),
-          total: calculateTotal(),
-          discountTier: getCurrentDiscount() > 0 ? `${getStickerCount()} stickers - £${getCurrentDiscount().toFixed(2)} off each` : null
-        };
-
-        // Save to sessionStorage for Wix to retrieve
-        sessionStorage.setItem('otterseas_cart', JSON.stringify(cartData));
-        
-        // Option 1: Redirect to Wix with cart data in URL
-        const cartParams = encodeURIComponent(JSON.stringify(cartData));
-        window.location.href = `https://www.otterseas.com/cart-handler?data=${cartParams}`;
-        
-        // Option 2: Show instructions (for testing)
-        // alert(`Cart prepared! ${cart.length} items\nTotal: £${calculateTotal()}\n\nIn production, this will redirect to your Wix store with all items added to cart.`);
-        // console.log('Cart data for Wix:', cartData);
-      };
-
-      const openProductModal = (item, isBundle = false, isBottle = false) => {
-        setModalContent({
-          ...item,
-          isBundle,
-          isBottle
-        });
-      };
-
-      return (
-        <div className="app-container">
-          <header className="page-header">
-            <h1 className="page-title">Customize Your Surface Tank</h1>
-            <p className="page-subtitle">Select stickers from your favorite dive destinations</p>
-          </header>
-
-          <div className="main-content">
-            <div className="left-section">
-              {/* Water Bottle */}
-              <div className="water-bottle-card" onClick={() => openProductModal(WATER_BOTTLE, false, true)}>
-                <div className="bottle-image-container">
-                  <img src={WATER_BOTTLE.image} alt={WATER_BOTTLE.name} />
-                </div>
-                <div className="bottle-info">
-                  <h2>{WATER_BOTTLE.name}</h2>
-                  <p>{WATER_BOTTLE.description}</p>
-                  <div className="bottle-price">£{WATER_BOTTLE.price.toFixed(2)}</div>
-                  <div className="bottle-actions">
-                    <button 
-                      className="btn-primary btn-secondary" 
-                      onClick={(e) => { e.stopPropagation(); addToCart(WATER_BOTTLE, false, true); }}
-                    >
-                      Add to Selection
-                    </button>
-                    <button 
-                      className="btn-primary" 
-                      onClick={(e) => { e.stopPropagation(); openProductModal(WATER_BOTTLE, false, true); }}
-                    >
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Sticker Selector */}
-              <div className="sticker-selector">
-                <div className="selector-header">
-                  <h3>Choose Your Stickers</h3>
-                  <div className="tabs">
-                    {Object.keys(STICKERS).map(region => (
-                      <button
-                        key={region}
-                        className={`tab ${activeTab === region ? 'active' : ''}`}
-                        onClick={() => setActiveTab(region)}
-                      >
-                        {region}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="sticker-grid-container">
-                  <div className="sticker-grid">
-                    {STICKERS[activeTab].map(sticker => (
-                      <div key={sticker.id} className="sticker-card">
-                        <img src={sticker.image} alt={sticker.name} onClick={() => openProductModal(sticker)} />
-                        <div className="sticker-card-info" onClick={() => openProductModal(sticker)}>
-                          <h4>{sticker.name}</h4>
-                          <div className="region">{sticker.region}</div>
-                          <div className="price">£{sticker.basePrice.toFixed(2)}</div>
-                        </div>
-                        <div className="sticker-card-actions">
-                          <button 
-                            className="btn-add-small"
-                            onClick={(e) => { e.stopPropagation(); addToCart(sticker); }}
-                          >
-                            Add
-                          </button>
-                          <button 
-                            className="btn-view-small"
-                            onClick={(e) => { e.stopPropagation(); openProductModal(sticker); }}
-                          >
-                            View
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Bundles */}
-              <div className="bundle-section">
-                <h3>Pre-Selected Bundles</h3>
-                <div className="bundle-grid">
-                  {BUNDLES.map(bundle => (
-                    <div key={bundle.id} className="bundle-card">
-                      <div className="bundle-card-info" onClick={() => openProductModal(bundle, true)}>
-                        <h4>{bundle.name}</h4>
-                        <div className="bundle-description">{bundle.description}</div>
-                        <div className="bundle-count">{bundle.count} stickers included</div>
-                        <div className="bundle-price">£{bundle.price.toFixed(2)}</div>
-                      </div>
-                      <div className="bundle-card-actions">
-                        <button 
-                          className="btn-add-small"
-                          onClick={(e) => { e.stopPropagation(); addToCart(bundle, true); }}
-                        >
-                          Add Bundle
-                        </button>
-                        <button 
-                          className="btn-view-small"
-                          onClick={(e) => { e.stopPropagation(); openProductModal(bundle, true); }}
-                        >
-                          View
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+import React, { useState, useRef } from 'react';
+
+const STICKERS = {
+  'UK/Europe': [
+    { id: 'uk-1', name: 'Scapa Flow', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK1' },
+    { id: 'uk-2', name: 'SS Thistlegorm', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK2' },
+    { id: 'uk-3', name: 'HMS Royal Oak', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK3' },
+    { id: 'uk-4', name: 'Farne Islands', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK4' },
+    { id: 'uk-5', name: 'Lundy Island', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK5' },
+    { id: 'uk-6', name: 'Malta Wrecks', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK6' },
+    { id: 'uk-7', name: 'Orkney Islands', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK7' },
+    { id: 'uk-8', name: 'Plymouth Sound', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK8' },
+  ],
+  'USA/Canada': [
+    { id: 'us-1', name: 'Florida Keys', region: 'USA/Canada', shopifyVariantId: 'PLACEHOLDER_US1' },
+    { id: 'us-2', name: 'Monterey Bay', region: 'USA/Canada', shopifyVariantId: 'PLACEHOLDER_US2' },
+    { id: 'us-3', name: 'Great Lakes', region: 'USA/Canada', shopifyVariantId: 'PLACEHOLDER_US3' },
+    { id: 'us-4', name: 'Vancouver Island', region: 'USA/Canada', shopifyVariantId: 'PLACEHOLDER_US4' },
+    { id: 'us-5', name: 'North Carolina', region: 'USA/Canada', shopifyVariantId: 'PLACEHOLDER_US5' },
+    { id: 'us-6', name: 'Channel Islands', region: 'USA/Canada', shopifyVariantId: 'PLACEHOLDER_US6' },
+    { id: 'us-7', name: 'Hawaii', region: 'USA/Canada', shopifyVariantId: 'PLACEHOLDER_US7' },
+    { id: 'us-8', name: 'Puget Sound', region: 'USA/Canada', shopifyVariantId: 'PLACEHOLDER_US8' },
+  ],
+  'Caribbean': [
+    { id: 'cb-1', name: 'Cozumel', region: 'Caribbean', shopifyVariantId: 'PLACEHOLDER_CB1' },
+    { id: 'cb-2', name: 'Bonaire', region: 'Caribbean', shopifyVariantId: 'PLACEHOLDER_CB2' },
+    { id: 'cb-3', name: 'Grand Cayman', region: 'Caribbean', shopifyVariantId: 'PLACEHOLDER_CB3' },
+    { id: 'cb-4', name: 'Roatan', region: 'Caribbean', shopifyVariantId: 'PLACEHOLDER_CB4' },
+    { id: 'cb-5', name: 'Turks & Caicos', region: 'Caribbean', shopifyVariantId: 'PLACEHOLDER_CB5' },
+    { id: 'cb-6', name: 'Saba', region: 'Caribbean', shopifyVariantId: 'PLACEHOLDER_CB6' },
+    { id: 'cb-7', name: 'St. Lucia', region: 'Caribbean', shopifyVariantId: 'PLACEHOLDER_CB7' },
+    { id: 'cb-8', name: 'Belize Barrier', region: 'Caribbean', shopifyVariantId: 'PLACEHOLDER_CB8' },
+  ],
+  'Latin America': [
+    { id: 'la-1', name: 'Galápagos', region: 'Latin America', shopifyVariantId: 'PLACEHOLDER_LA1' },
+    { id: 'la-2', name: 'Cenotes', region: 'Latin America', shopifyVariantId: 'PLACEHOLDER_LA2' },
+    { id: 'la-3', name: 'Cocos Island', region: 'Latin America', shopifyVariantId: 'PLACEHOLDER_LA3' },
+    { id: 'la-4', name: 'Fernando de Noronha', region: 'Latin America', shopifyVariantId: 'PLACEHOLDER_LA4' },
+    { id: 'la-5', name: 'Socorro', region: 'Latin America', shopifyVariantId: 'PLACEHOLDER_LA5' },
+    { id: 'la-6', name: 'Belize Blue Hole', region: 'Latin America', shopifyVariantId: 'PLACEHOLDER_LA6' },
+    { id: 'la-7', name: 'Sea of Cortez', region: 'Latin America', shopifyVariantId: 'PLACEHOLDER_LA7' },
+    { id: 'la-8', name: 'Isla Mujeres', region: 'Latin America', shopifyVariantId: 'PLACEHOLDER_LA8' },
+  ],
+  'Indo-Pacific': [
+    { id: 'ip-1', name: 'Raja Ampat', region: 'Indo-Pacific', shopifyVariantId: 'PLACEHOLDER_IP1' },
+    { id: 'ip-2', name: 'Komodo', region: 'Indo-Pacific', shopifyVariantId: 'PLACEHOLDER_IP2' },
+    { id: 'ip-3', name: 'Sipadan', region: 'Indo-Pacific', shopifyVariantId: 'PLACEHOLDER_IP3' },
+    { id: 'ip-4', name: 'Great Barrier Reef', region: 'Indo-Pacific', shopifyVariantId: 'PLACEHOLDER_IP4' },
+    { id: 'ip-5', name: 'Palau', region: 'Indo-Pacific', shopifyVariantId: 'PLACEHOLDER_IP5' },
+    { id: 'ip-6', name: 'Maldives', region: 'Indo-Pacific', shopifyVariantId: 'PLACEHOLDER_IP6' },
+    { id: 'ip-7', name: 'Philippines', region: 'Indo-Pacific', shopifyVariantId: 'PLACEHOLDER_IP7' },
+    { id: 'ip-8', name: 'Thailand', region: 'Indo-Pacific', shopifyVariantId: 'PLACEHOLDER_IP8' },
+  ],
+  'Expeditions': [
+    { id: 'ex-1', name: 'Antarctica', region: 'Expeditions', shopifyVariantId: 'PLACEHOLDER_EX1' },
+    { id: 'ex-2', name: 'Truk Lagoon', region: 'Expeditions', shopifyVariantId: 'PLACEHOLDER_EX2' },
+    { id: 'ex-3', name: 'Bikini Atoll', region: 'Expeditions', shopifyVariantId: 'PLACEHOLDER_EX3' },
+    { id: 'ex-4', name: 'Coron Bay', region: 'Expeditions', shopifyVariantId: 'PLACEHOLDER_EX4' },
+    { id: 'ex-5', name: 'Red Sea Liveaboard', region: 'Expeditions', shopifyVariantId: 'PLACEHOLDER_EX5' },
+    { id: 'ex-6', name: 'Arctic Circle', region: 'Expeditions', shopifyVariantId: 'PLACEHOLDER_EX6' },
+    { id: 'ex-7', name: 'Galápagos Liveaboard', region: 'Expeditions', shopifyVariantId: 'PLACEHOLDER_EX7' },
+    { id: 'ex-8', name: 'Papua New Guinea', region: 'Expeditions', shopifyVariantId: 'PLACEHOLDER_EX8' },
+  ],
+};
+
+const BUNDLES = [
+  { id: 'bundle-1', name: 'The Wreck Pack', description: '5 legendary wreck dives', stickerIds: ['uk-2', 'us-3', 'ex-2', 'ex-3', 'ex-4'] },
+  { id: 'bundle-2', name: 'Tropical Starter', description: '5 warm water favorites', stickerIds: ['cb-1', 'cb-2', 'ip-1', 'ip-6', 'la-1'] },
+  { id: 'bundle-3', name: 'UK Explorer', description: '5 British Isles classics', stickerIds: ['uk-1', 'uk-3', 'uk-4', 'uk-5', 'uk-6'] },
+];
+
+const REGIONS = Object.keys(STICKERS);
+const MIN_ORDER = 5;
+
+const getPricePerItem = (total) => total >= 21 ? 1.50 : total >= 11 ? 1.75 : 2.50;
+const getPricingTier = (total) => total >= 21 ? { tier: 'Best Value', color: '#4ade80', next: null } : total >= 11 ? { tier: 'Great Deal', color: '#D99E30', next: 21 - total } : { tier: 'Standard', color: '#94a3b8', next: 11 - total };
+const getAllStickers = () => Object.values(STICKERS).flat();
+
+export default function OtterseasStickerBuilder() {
+  const [cart, setCart] = useState({});
+  const [activeTab, setActiveTab] = useState(REGIONS[0]);
+  const [animating, setAnimating] = useState(new Set());
+
+  const totalItems = Object.values(cart).reduce((s, q) => s + q, 0);
+  const pricePerItem = getPricePerItem(totalItems);
+  const totalPrice = totalItems * pricePerItem;
+  const canCheckout = totalItems >= MIN_ORDER;
+  const tier = getPricingTier(totalItems);
+  const savings = totalItems * 2.50 - totalPrice;
+
+  const toggle = (id) => {
+    setAnimating(p => new Set(p).add(id));
+    setTimeout(() => setAnimating(p => { const n = new Set(p); n.delete(id); return n; }), 300);
+    setCart(p => { const n = {...p}; n[id] ? delete n[id] : n[id] = 1; return n; });
+  };
+
+  const updateQty = (id, d) => setCart(p => { const n = {...p}; const q = (n[id]||0)+d; q <= 0 ? delete n[id] : n[id] = q; return n; });
+  const addBundle = (b) => setCart(p => { const n = {...p}; b.stickerIds.forEach(id => n[id] = (n[id]||0)+1); return n; });
+  
+  const checkout = () => {
+    const items = Object.entries(cart).map(([id, qty]) => ({ id: getAllStickers().find(s => s.id === id)?.shopifyVariantId || id, qty }));
+    const url = `https://yourstore.myshopify.com/cart/${items.map(i => `${i.id}:${i.qty}`).join(',')}${totalItems >= 21 ? '?discount=BULK21' : totalItems >= 11 ? '?discount=BULK11' : ''}`;
+    console.log('Checkout URL:', url);
+    alert(`Total: ${totalItems} stickers\nPrice: £${totalPrice.toFixed(2)}\nSaved: £${savings.toFixed(2)}`);
+  };
+
+  const cartItems = Object.keys(cart).map(id => ({...getAllStickers().find(s => s.id === id), qty: cart[id]})).filter(s => s.id);
+  const stickers = STICKERS[activeTab] || [];
+
+  return (
+    <div className="h-screen w-full overflow-hidden flex flex-col" style={{fontFamily: "'DM Sans', sans-serif"}}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+        .hide-scrollbar::-webkit-scrollbar{display:none}.hide-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+        .card{transition:all .2s}.card:hover{transform:translateY(-4px);box-shadow:0 12px 24px -8px rgba(10,37,64,.2)}
+        .card.sel{box-shadow:0 0 0 3px #D99E30,0 12px 24px -8px rgba(217,158,48,.3)}
+        .card.anim{animation:pulse .3s}@keyframes pulse{0%,100%{transform:scale(1) translateY(-4px)}50%{transform:scale(1.05) translateY(-4px)}}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.fade{animation:fadeIn .3s forwards}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}.slide{animation:slideIn .25s forwards}
+      `}</style>
+
+      <header className="flex-shrink-0 h-16 flex items-center justify-between px-6 z-50" style={{background:'linear-gradient(135deg,#0A2540 0%,#0d3252 50%,#0A2540 100%)',boxShadow:'0 4px 20px rgba(10,37,64,.3)'}}>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{backgroundColor:'#D99E30'}}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <span className="text-xl font-semibold text-white" style={{fontFamily:"'Outfit',sans-serif"}}>Otterseas</span>
+        </div>
+        <div className="hidden md:flex items-center text-sm" style={{color:'#D99E30'}}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mr-2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Free shipping on 10+ stickers
+        </div>
+        <a href="#" className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full hover:scale-105 transition" style={{backgroundColor:'#D99E30',color:'white'}}>
+          Need a Surface Tank? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </header>
+
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        <div className="flex-1 md:w-[70%] flex flex-col overflow-hidden bg-white">
+          <div className="flex-shrink-0 px-6 py-6" style={{background:'linear-gradient(135deg,#0A2540 0%,#133659 50%,#0A2540 100%)',borderBottom:'4px solid #D99E30'}}>
+            <div className="max-w-2xl">
+              <h1 className="text-2xl md:text-3xl font-bold text-white mb-3" style={{fontFamily:"'Outfit',sans-serif"}}>Build Your Dive Story</h1>
+              <p className="text-white/70 text-sm md:text-base leading-relaxed">Every sticker marks a memory. Collect the dive sites you've conquered, the wrecks you've explored, and the reefs that took your breath away. Deck out your Surface Tank, laptop, or dive case with waterproof vinyl stickers that tell your underwater story.</p>
+              <div className="flex flex-wrap gap-3 mt-5">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium" style={{backgroundColor:'rgba(148,163,184,.2)',color:'#cbd5e1',border:'1px solid rgba(148,163,184,.3)'}}><span className="w-2 h-2 rounded-full bg-slate-400"></span>1-10: £2.50 each</div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium" style={{backgroundColor:'rgba(217,158,48,.2)',color:'#D99E30',border:'1px solid rgba(217,158,48,.3)'}}><span className="w-2 h-2 rounded-full" style={{backgroundColor:'#D99E30'}}></span>11-20: £1.75 each</div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium" style={{backgroundColor:'rgba(74,222,128,.2)',color:'#4ade80',border:'1px solid rgba(74,222,128,.3)'}}><span className="w-2 h-2 rounded-full" style={{backgroundColor:'#4ade80'}}></span>21+: £1.50 each</div>
               </div>
             </div>
-
-            {/* Cart */}
-            <aside className="cart-sidebar">
-              <h2>Your Selection</h2>
-
-              <div className="cart-items">
-                {cart.length === 0 ? (
-                  <div className="empty-cart">No items selected yet</div>
-                ) : (
-                  cart.map(item => (
-                    <div key={item.id} className="cart-item">
-                      <div className="cart-item-info">
-                        <h4>{item.name}</h4>
-                        <div className="quantity">
-                          Qty: {item.quantity}
-                          {item.isBundle && ` (${item.count} stickers)`}
-                        </div>
-                        {!item.isBundle && !item.isBottle && getCurrentDiscount() > 0 && (
-                          <div className="discounted">
-                            -£{getCurrentDiscount().toFixed(2)} discount applied
-                          </div>
-                        )}
-                      </div>
-                      <button onClick={() => removeFromCart(item.id)}>Remove</button>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <div className="cart-summary">
-                {getStickerCount() >= 5 && (
-                  <div className="pricing-tier-info">
-                    <div className="tier-title">Volume Discount Active!</div>
-                    <div className="tier-details">
-                      <div>{getStickerCount()} stickers selected</div>
-                      <div className="discount-amount">
-                        £{getCurrentDiscount().toFixed(2)} off per sticker
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {getStickerCount() > 0 && getStickerCount() < 5 && (
-                  <div className="minimum-warning">
-                    Add {5 - getStickerCount()} more sticker{5 - getStickerCount() !== 1 ? 's' : ''} to unlock discounts
-                  </div>
-                )}
-
-                <div className="cart-summary-row">
-                  <span>Subtotal:</span>
-                  <span>£{calculateSubtotal().toFixed(2)}</span>
-                </div>
-
-                {getCurrentDiscount() > 0 && (
-                  <div className="cart-summary-row discount">
-                    <span>Volume Discount:</span>
-                    <span>-£{calculateDiscount().toFixed(2)}</span>
-                  </div>
-                )}
-
-                <div className="cart-summary-row total">
-                  <span>Total:</span>
-                  <span>£{calculateTotal()}</span>
-                </div>
-
-                <button 
-                  className="checkout-button" 
-                  disabled={!canCheckout()}
-                  onClick={handleCheckout}
-                >
-                  Continue to Checkout
-                </button>
-              </div>
-            </aside>
           </div>
 
-          {/* Product Page Modal */}
-          {modalContent && (
-            <div className="modal-overlay" onClick={() => setModalContent(null)}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                  <h3>{modalContent.name}</h3>
-                  <button className="modal-close" onClick={() => setModalContent(null)}>×</button>
-                </div>
-                <div className="modal-body">
-                  <iframe 
-                    src={modalContent.wixUrl} 
-                    title={modalContent.name}
-                    allow="payment"
-                  />
-                </div>
-                <div className="modal-footer">
-                  <button 
-                    className="btn-primary btn-secondary" 
-                    onClick={() => addToCart(modalContent, modalContent.isBundle, modalContent.isBottle)}
-                  >
-                    Add to Selection
+          <div className="flex-shrink-0 px-6 py-4 bg-white" style={{boxShadow:'0 4px 12px rgba(10,37,64,.08)'}}>
+            <div className="flex gap-2 overflow-x-auto hide-scrollbar">
+              {REGIONS.map(r => (
+                <button key={r} onClick={() => setActiveTab(r)} className={`px-5 py-2.5 text-sm font-medium rounded-xl whitespace-nowrap transition ${activeTab === r ? 'text-white shadow-lg' : 'text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200'}`} style={activeTab === r ? {background:'linear-gradient(135deg,#D99E30 0%,#c48a20 100%)',boxShadow:'0 4px 12px rgba(217,158,48,.4)'} : {}}>{r}</button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto hide-scrollbar p-6" style={{background:'linear-gradient(180deg,#fff 0%,#f8fafc 100%)'}}>
+            <div className="mb-6">
+              <h2 className="text-xl font-bold flex items-center gap-3 mb-5" style={{fontFamily:"'Outfit',sans-serif",color:'#0A2540'}}>
+                <span className="w-1.5 h-7 rounded-full" style={{backgroundColor:'#D99E30'}}></span>{activeTab}
+                <span className="text-sm font-medium px-3 py-1 rounded-full" style={{backgroundColor:'rgba(217,158,48,.15)',color:'#D99E30'}}>{stickers.length} stickers</span>
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {stickers.map((s, i) => (
+                  <button key={s.id} onClick={() => toggle(s.id)} className={`card fade relative bg-white rounded-2xl p-4 text-left border-2 ${cart[s.id] ? 'sel border-transparent' : 'border-gray-100 hover:border-gray-200'} ${animating.has(s.id) ? 'anim' : ''}`} style={{animationDelay:`${i*30}ms`}}>
+                    <div className="aspect-square rounded-xl mb-3 flex items-center justify-center relative" style={{background:cart[s.id]?'linear-gradient(135deg,#D99E30 0%,#c48a20 100%)':'linear-gradient(135deg,#0A2540 0%,#133659 100%)'}}>
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" opacity={cart[s.id]?.9:.4}><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20"/><path d="M2 12h20"/><path d="M12 2c2.5 2.5 4 6 4 10s-1.5 7.5-4 10"/></svg>
+                      {cart[s.id] && <div className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center bg-white shadow-lg"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D99E30" strokeWidth="3"><path d="M20 6L9 17l-5-5"/></svg></div>}
+                    </div>
+                    <p className="text-sm font-semibold text-gray-900 truncate">{s.name}</p>
+                    <p className="text-sm font-bold mt-1" style={{color:'#D99E30'}}>£2.50</p>
                   </button>
-                  <button 
-                    className="btn-primary" 
-                    onClick={() => window.open(modalContent.wixUrl, '_blank')}
-                  >
-                    Open in New Tab
-                  </button>
-                </div>
+                ))}
               </div>
             </div>
-          )}
-        </div>
-      );
-    }
 
-    ReactDOM.render(<StickerSelector />, document.getElementById('root'));
-  </script>
-</body>
-</html>
+            <div className="mt-8 rounded-2xl p-6" style={{background:'linear-gradient(135deg,#0A2540 0%,#0d3252 50%,#0A2540 100%)',boxShadow:'0 8px 32px rgba(10,37,64,.3)'}}>
+              <h2 className="text-xl font-bold mb-1 text-white flex items-center gap-3" style={{fontFamily:"'Outfit',sans-serif"}}><span className="w-1.5 h-7 rounded-full" style={{backgroundColor:'#D99E30'}}></span>Quick Add Packs</h2>
+              <p className="text-white/50 text-sm mb-6 ml-5">Jump-start your collection with curated bundles</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {BUNDLES.map(b => (
+                  <div key={b.id} className="rounded-xl p-5 flex flex-col transition hover:translate-y-[-2px]" style={{backgroundColor:'rgba(217,158,48,.1)',border:'2px solid rgba(217,158,48,.3)'}}>
+                    <div className="flex items-start justify-between mb-3">
+                      <div><h3 className="font-bold text-white">{b.name}</h3><p className="text-sm text-white/50 mt-0.5">{b.description}</p></div>
+                      <span className="text-xs font-bold px-2.5 py-1.5 rounded-lg" style={{backgroundColor:'#D99E30',color:'white'}}>5 stickers</span>
+                    </div>
+                    <div className="flex gap-2 mb-4">{[0,1,2,3,4].map(i => <div key={i} className="w-10 h-10 rounded-lg" style={{background:'linear-gradient(135deg,#D99E30 0%,#c48a20 100%)',opacity:.5+i*.12}}/>)}</div>
+                    <button onClick={() => addBundle(b)} className="mt-auto w-full py-3 rounded-xl text-sm font-bold hover:scale-[1.02] transition" style={{backgroundColor:'#D99E30',color:'white'}}>Add Pack · £12.50</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="h-48 md:h-8"/>
+          </div>
+        </div>
+
+        <div className="hidden md:flex md:w-[30%] flex-col" style={{background:'linear-gradient(180deg,#0A2540 0%,#071a2e 100%)'}}>
+          <div className="flex-shrink-0 p-6" style={{background:'linear-gradient(180deg,rgba(217,158,48,.15) 0%,transparent 100%)',borderBottom:'1px solid rgba(217,158,48,.2)'}}>
+            <div className="relative flex items-center justify-center py-6">
+              <div className="relative">
+                <div className="w-24 h-36 rounded-2xl flex items-center justify-center" style={{background:'linear-gradient(180deg,#1a4a7a 0%,#0A2540 100%)',boxShadow:'0 8px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.1),0 0 0 2px rgba(217,158,48,.3)'}}>
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#D99E30" strokeWidth="1.5" opacity=".7"><path d="M6 2h12v6l-2 2v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10L6 8V2z"/><path d="M6 2h12v2H6z"/></svg>
+                </div>
+                {totalItems > 0 && <div className="absolute -top-3 -right-3 w-12 h-12 rounded-full flex items-center justify-center text-base font-bold" style={{backgroundColor:'#D99E30',color:'white',boxShadow:'0 4px 16px rgba(217,158,48,.5)'}}>{totalItems}</div>}
+              </div>
+            </div>
+            <div className="text-center">
+              <p className="text-white/80 text-sm font-medium">{totalItems === 0 ? 'Select stickers to build your pack' : `${totalItems} sticker${totalItems !== 1 ? 's' : ''} selected`}</p>
+              {totalItems > 0 && <div className="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-full text-xs font-bold" style={{backgroundColor:`${tier.color}25`,color:tier.color,border:`2px solid ${tier.color}50`}}><span className="w-2 h-2 rounded-full" style={{backgroundColor:tier.color}}></span>{tier.tier} · £{pricePerItem.toFixed(2)}/sticker</div>}
+              {tier.next && totalItems > 0 && <p className="text-white/40 text-xs mt-2">Add {tier.next} more for next tier!</p>}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto hide-scrollbar p-4">
+            {cartItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-4" style={{background:'linear-gradient(135deg,rgba(217,158,48,.2) 0%,rgba(217,158,48,.1) 100%)',border:'2px dashed rgba(217,158,48,.3)'}}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D99E30" strokeWidth="1.5" opacity=".7"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+                </div>
+                <p className="text-white/50 text-sm font-medium">Your pack is empty</p>
+                <p className="text-white/30 text-xs mt-1">Click stickers to add them</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {cartItems.map((s, i) => (
+                  <div key={s.id} className="slide flex items-center gap-3 rounded-xl p-3" style={{backgroundColor:'rgba(217,158,48,.1)',border:'1px solid rgba(217,158,48,.2)',animationDelay:`${i*50}ms`}}>
+                    <div className="w-10 h-10 rounded-lg flex-shrink-0" style={{background:'linear-gradient(135deg,#D99E30 0%,#c48a20 100%)'}}/>
+                    <div className="flex-1 min-w-0"><p className="text-white text-sm font-medium truncate">{s.name}</p><p className="text-white/40 text-xs">{s.region}</p></div>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => updateQty(s.id, -1)} className="w-8 h-8 rounded-lg flex items-center justify-center hover:scale-110 transition" style={{backgroundColor:'#D99E30',color:'white'}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14"/></svg></button>
+                      <span className="w-8 text-center text-white text-sm font-bold">{s.qty}</span>
+                      <button onClick={() => updateQty(s.id, 1)} className="w-8 h-8 rounded-lg flex items-center justify-center hover:scale-110 transition" style={{backgroundColor:'#D99E30',color:'white'}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M5 12h14"/></svg></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex-shrink-0 p-4" style={{background:'linear-gradient(180deg,transparent 0%,rgba(217,158,48,.1) 100%)',borderTop:'1px solid rgba(217,158,48,.2)'}}>
+            <div className="mb-4 p-4 rounded-xl" style={{backgroundColor:'rgba(255,255,255,.05)',border:'1px solid rgba(255,255,255,.1)'}}>
+              <div className="flex justify-between text-xs mb-3"><span className="text-white/60 font-medium">Pricing Progress</span><span className="font-bold" style={{color:tier.color}}>{tier.tier}</span></div>
+              <div className="flex gap-1 mb-2">
+                <div className="flex-1 h-2.5 rounded-full overflow-hidden bg-white/10"><div className="h-full rounded-full transition-all duration-500" style={{width:`${Math.min(100,(totalItems/10)*100)}%`,backgroundColor:'#94a3b8'}}/></div>
+                <div className="flex-1 h-2.5 rounded-full overflow-hidden bg-white/10"><div className="h-full rounded-full transition-all duration-500" style={{width:`${Math.min(100,Math.max(0,(totalItems-10)/10)*100)}%`,backgroundColor:'#D99E30'}}/></div>
+                <div className="flex-1 h-2.5 rounded-full overflow-hidden bg-white/10"><div className="h-full rounded-full transition-all duration-500" style={{width:`${Math.min(100,Math.max(0,(totalItems-20)/10)*100)}%`,backgroundColor:'#4ade80'}}/></div>
+              </div>
+              <div className="flex justify-between text-xs text-white/40 font-medium"><span>10</span><span>20</span><span>30</span></div>
+            </div>
+            <div className="flex justify-between items-baseline mb-2"><span className="text-white/60 text-sm font-medium">Total</span><span className="text-3xl font-bold" style={{color:'#D99E30'}}>£{totalPrice.toFixed(2)}</span></div>
+            {savings > 0 && <div className="text-right mb-4"><span className="text-sm font-bold px-3 py-1 rounded-lg" style={{backgroundColor:'rgba(74,222,128,.2)',color:'#4ade80'}}>You save £{savings.toFixed(2)}!</span></div>}
+            {!canCheckout && totalItems > 0 && <p className="text-center text-xs mb-3 py-2 rounded-lg font-medium" style={{backgroundColor:'rgba(217,158,48,.1)',color:'#D99E30'}}>Minimum {MIN_ORDER} stickers · Add {MIN_ORDER - totalItems} more</p>}
+            <button onClick={checkout} disabled={!canCheckout} className="w-full py-4 rounded-xl text-sm font-bold hover:scale-[1.02] transition" style={{background:canCheckout?'linear-gradient(135deg,#D99E30 0%,#c48a20 100%)':'rgba(255,255,255,.1)',color:canCheckout?'white':'rgba(255,255,255,.3)',cursor:canCheckout?'pointer':'not-allowed',boxShadow:canCheckout?'0 4px 20px rgba(217,158,48,.5)':'none'}}>{canCheckout ? 'Proceed to Checkout →' : `Minimum ${MIN_ORDER} stickers required`}</button>
+          </div>
+        </div>
+
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50" style={{background:'linear-gradient(180deg,#0A2540 0%,#071a2e 100%)',boxShadow:'0 -4px 20px rgba(10,37,64,.4)'}}>
+          <div className="px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-base" style={{backgroundColor:'#D99E30',color:'white'}}>{totalItems}</div>
+              <div><p className="text-white text-sm font-semibold">{totalItems === 0 ? 'Your pack is empty' : `${totalItems} sticker${totalItems !== 1 ? 's' : ''}`}</p><div className="flex items-center gap-2"><span className="text-sm font-bold" style={{color:'#D99E30'}}>£{totalPrice.toFixed(2)}</span>{savings > 0 && <span className="text-xs font-medium" style={{color:'#4ade80'}}>Save £{savings.toFixed(2)}</span>}</div></div>
+            </div>
+            <button onClick={checkout} disabled={!canCheckout} className="px-6 py-3 rounded-xl text-sm font-bold transition" style={{background:canCheckout?'linear-gradient(135deg,#D99E30 0%,#c48a20 100%)':'rgba(255,255,255,.1)',color:canCheckout?'white':'rgba(255,255,255,.3)'}}>{canCheckout ? 'Checkout →' : `Min ${MIN_ORDER}`}</button>
+          </div>
+          <div className="flex h-1.5">
+            <div className="transition-all duration-500" style={{width:`${Math.min(33.33,(totalItems/10)*33.33)}%`,backgroundColor:'#94a3b8'}}/>
+            <div className="transition-all duration-500" style={{width:`${Math.min(33.33,Math.max(0,(totalItems-10)/10)*33.33)}%`,backgroundColor:'#D99E30'}}/>
+            <div className="transition-all duration-500" style={{width:`${Math.min(33.34,Math.max(0,(totalItems-20)/10)*33.34)}%`,backgroundColor:'#4ade80'}}/>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
