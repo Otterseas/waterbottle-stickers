@@ -1,5 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 
+// ===========================================
+// STICKER DATA - Replace with your Shopify product data
+// ===========================================
 const STICKERS = {
   'UK/Europe': [
     { id: 'uk-1', name: 'Scapa Flow', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK1' },
@@ -63,176 +66,816 @@ const STICKERS = {
   ],
 };
 
+// ===========================================
+// BUNDLE DATA - Pre-configured packs
+// ===========================================
 const BUNDLES = [
-  { id: 'bundle-1', name: 'The Wreck Pack', description: '5 legendary wreck dives', stickerIds: ['uk-2', 'us-3', 'ex-2', 'ex-3', 'ex-4'] },
-  { id: 'bundle-2', name: 'Tropical Starter', description: '5 warm water favorites', stickerIds: ['cb-1', 'cb-2', 'ip-1', 'ip-6', 'la-1'] },
-  { id: 'bundle-3', name: 'UK Explorer', description: '5 British Isles classics', stickerIds: ['uk-1', 'uk-3', 'uk-4', 'uk-5', 'uk-6'] },
+  { 
+    id: 'bundle-1', 
+    name: 'The Wreck Pack', 
+    description: '5 legendary wreck dives', 
+    stickerIds: ['uk-2', 'us-3', 'ex-2', 'ex-3', 'ex-4'],
+    shopifyVariantId: 'PLACEHOLDER_BUNDLE1'
+  },
+  { 
+    id: 'bundle-2', 
+    name: 'Tropical Starter', 
+    description: '5 warm water favorites', 
+    stickerIds: ['cb-1', 'cb-2', 'ip-1', 'ip-6', 'la-1'],
+    shopifyVariantId: 'PLACEHOLDER_BUNDLE2'
+  },
+  { 
+    id: 'bundle-3', 
+    name: 'UK Explorer', 
+    description: '5 British Isles classics', 
+    stickerIds: ['uk-1', 'uk-3', 'uk-4', 'uk-5', 'uk-6'],
+    shopifyVariantId: 'PLACEHOLDER_BUNDLE3'
+  },
 ];
 
+// ===========================================
+// CONFIGURATION
+// ===========================================
 const REGIONS = Object.keys(STICKERS);
 const MIN_ORDER = 5;
+const BASE_PRICE = 2.50;
 
-const getPricePerItem = (total) => total >= 21 ? 1.50 : total >= 11 ? 1.75 : 2.50;
-const getPricingTier = (total) => total >= 21 ? { tier: 'Best Value', color: '#4ade80', next: null } : total >= 11 ? { tier: 'Great Deal', color: '#D99E30', next: 21 - total } : { tier: 'Standard', color: '#94a3b8', next: 11 - total };
+// Tiered pricing function
+const getPricePerItem = (totalItems) => {
+  if (totalItems >= 21) return 1.50;
+  if (totalItems >= 11) return 1.75;
+  return 2.50;
+};
+
+// Get pricing tier info for display
+const getPricingTier = (totalItems) => {
+  if (totalItems >= 21) {
+    return { tier: 'Best Value', color: '#4ade80', next: null };
+  }
+  if (totalItems >= 11) {
+    return { tier: 'Great Deal', color: '#D99E30', next: 21 - totalItems };
+  }
+  return { tier: 'Standard', color: '#94a3b8', next: 11 - totalItems };
+};
+
+// Flatten all stickers into single array
 const getAllStickers = () => Object.values(STICKERS).flat();
 
+// ===========================================
+// MAIN COMPONENT
+// ===========================================
 export default function OtterseasStickerBuilder() {
   const [cart, setCart] = useState({});
   const [activeTab, setActiveTab] = useState(REGIONS[0]);
-  const [animating, setAnimating] = useState(new Set());
+  const [animatingItems, setAnimatingItems] = useState(new Set());
 
-  const totalItems = Object.values(cart).reduce((s, q) => s + q, 0);
+  // ===========================================
+  // CALCULATED VALUES
+  // ===========================================
+  const totalItems = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
   const pricePerItem = getPricePerItem(totalItems);
   const totalPrice = totalItems * pricePerItem;
   const canCheckout = totalItems >= MIN_ORDER;
-  const tier = getPricingTier(totalItems);
-  const savings = totalItems * 2.50 - totalPrice;
+  const pricingTier = getPricingTier(totalItems);
+  const standardTotal = totalItems * BASE_PRICE;
+  const savings = standardTotal - totalPrice;
 
-  const toggle = (id) => {
-    setAnimating(p => new Set(p).add(id));
-    setTimeout(() => setAnimating(p => { const n = new Set(p); n.delete(id); return n; }), 300);
-    setCart(p => { const n = {...p}; n[id] ? delete n[id] : n[id] = 1; return n; });
+  // Get stickers for current tab
+  const activeStickers = STICKERS[activeTab] || [];
+
+  // Get cart items with full sticker data
+  const cartStickers = Object.keys(cart)
+    .map(id => ({
+      ...getAllStickers().find(s => s.id === id),
+      quantity: cart[id]
+    }))
+    .filter(s => s.id);
+
+  // ===========================================
+  // EVENT HANDLERS
+  // ===========================================
+  const toggleSticker = (stickerId) => {
+    // Trigger animation
+    setAnimatingItems(prev => new Set(prev).add(stickerId));
+    setTimeout(() => {
+      setAnimatingItems(prev => {
+        const next = new Set(prev);
+        next.delete(stickerId);
+        return next;
+      });
+    }, 300);
+
+    // Update cart
+    setCart(prev => {
+      const newCart = { ...prev };
+      if (newCart[stickerId]) {
+        delete newCart[stickerId];
+      } else {
+        newCart[stickerId] = 1;
+      }
+      return newCart;
+    });
   };
 
-  const updateQty = (id, d) => setCart(p => { const n = {...p}; const q = (n[id]||0)+d; q <= 0 ? delete n[id] : n[id] = q; return n; });
-  const addBundle = (b) => setCart(p => { const n = {...p}; b.stickerIds.forEach(id => n[id] = (n[id]||0)+1); return n; });
-  
-  const checkout = () => {
-    const items = Object.entries(cart).map(([id, qty]) => ({ id: getAllStickers().find(s => s.id === id)?.shopifyVariantId || id, qty }));
-    const url = `https://yourstore.myshopify.com/cart/${items.map(i => `${i.id}:${i.qty}`).join(',')}${totalItems >= 21 ? '?discount=BULK21' : totalItems >= 11 ? '?discount=BULK11' : ''}`;
-    console.log('Checkout URL:', url);
-    alert(`Total: ${totalItems} stickers\nPrice: £${totalPrice.toFixed(2)}\nSaved: £${savings.toFixed(2)}`);
+  const updateQuantity = (stickerId, delta) => {
+    setCart(prev => {
+      const newCart = { ...prev };
+      const newQty = (newCart[stickerId] || 0) + delta;
+      if (newQty <= 0) {
+        delete newCart[stickerId];
+      } else {
+        newCart[stickerId] = newQty;
+      }
+      return newCart;
+    });
   };
 
-  const cartItems = Object.keys(cart).map(id => ({...getAllStickers().find(s => s.id === id), qty: cart[id]})).filter(s => s.id);
-  const stickers = STICKERS[activeTab] || [];
+  const addBundle = (bundle) => {
+    setCart(prev => {
+      const newCart = { ...prev };
+      bundle.stickerIds.forEach(id => {
+        newCart[id] = (newCart[id] || 0) + 1;
+      });
+      return newCart;
+    });
+  };
 
+  const handleCheckout = () => {
+    // Build cart items array
+    const cartItems = Object.entries(cart).map(([id, qty]) => {
+      const sticker = getAllStickers().find(s => s.id === id);
+      return { 
+        variantId: sticker?.shopifyVariantId || id, 
+        quantity: qty 
+      };
+    });
+    
+    // Build Shopify cart URL
+    const cartString = cartItems
+      .map(item => `${item.variantId}:${item.quantity}`)
+      .join(',');
+    
+    const baseUrl = 'https://yourstore.myshopify.com/cart/';
+    
+    // Add discount code based on tier
+    let discountParam = '';
+    if (totalItems >= 21) {
+      discountParam = '?discount=BULK21';
+    } else if (totalItems >= 11) {
+      discountParam = '?discount=BULK11';
+    }
+    
+    const checkoutUrl = `${baseUrl}${cartString}${discountParam}`;
+    
+    // Debug output
+    console.log('=== CHECKOUT DEBUG ===');
+    console.log('Cart Items:', cartItems);
+    console.log('Total Items:', totalItems);
+    console.log('Price Per Item:', pricePerItem);
+    console.log('Total Price:', totalPrice);
+    console.log('Savings:', savings);
+    console.log('Checkout URL:', checkoutUrl);
+    console.log('======================');
+    
+    // In production, redirect to Shopify:
+    // window.location.href = checkoutUrl;
+    
+    alert(`Checkout URL logged to console!\n\nTotal: ${totalItems} stickers\nPrice: £${totalPrice.toFixed(2)}\nYou save: £${savings.toFixed(2)}`);
+  };
+
+  // ===========================================
+  // RENDER
+  // ===========================================
   return (
-    <div className="h-screen w-full overflow-hidden flex flex-col" style={{fontFamily: "'DM Sans', sans-serif"}}>
+    <div 
+      className="h-screen w-full overflow-hidden flex flex-col" 
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
+    >
+      {/* ===========================================
+          STYLES
+          =========================================== */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
-        .hide-scrollbar::-webkit-scrollbar{display:none}.hide-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
-        .card{transition:all .2s}.card:hover{transform:translateY(-4px);box-shadow:0 12px 24px -8px rgba(10,37,64,.2)}
-        .card.sel{box-shadow:0 0 0 3px #D99E30,0 12px 24px -8px rgba(217,158,48,.3)}
-        .card.anim{animation:pulse .3s}@keyframes pulse{0%,100%{transform:scale(1) translateY(-4px)}50%{transform:scale(1.05) translateY(-4px)}}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.fade{animation:fadeIn .3s forwards}
-        @keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}.slide{animation:slideIn .25s forwards}
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@400;500;600;700&display=swap');
+        
+        /* Hide scrollbar */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Sticker card animations */
+        .sticker-card {
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sticker-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 24px -8px rgba(10, 37, 64, 0.2);
+        }
+        .sticker-card.selected {
+          box-shadow: 0 0 0 3px #D99E30, 0 12px 24px -8px rgba(217, 158, 48, 0.3);
+        }
+        .sticker-card.animating {
+          animation: pulse 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes pulse {
+          0%, 100% { transform: scale(1) translateY(-4px); }
+          50% { transform: scale(1.05) translateY(-4px); }
+        }
+        
+        /* Fade in animation for stickers */
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .sticker-fade-in {
+          animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        /* Slide in animation for cart items */
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(-12px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        .cart-item-enter {
+          animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        /* Tab button transitions */
+        .tab-button {
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Bundle card hover */
+        .bundle-card {
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bundle-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px -4px rgba(217, 158, 48, 0.3);
+        }
       `}</style>
 
-      <header className="flex-shrink-0 h-16 flex items-center justify-between px-6 z-50" style={{background:'linear-gradient(135deg,#0A2540 0%,#0d3252 50%,#0A2540 100%)',boxShadow:'0 4px 20px rgba(10,37,64,.3)'}}>
+      {/* ===========================================
+          HEADER
+          =========================================== */}
+      <header 
+        className="flex-shrink-0 h-16 flex items-center justify-between px-6 z-50"
+        style={{ 
+          background: 'linear-gradient(135deg, #0A2540 0%, #0d3252 50%, #0A2540 100%)',
+          boxShadow: '0 4px 20px rgba(10, 37, 64, 0.3)'
+        }}
+      >
+        {/* Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{backgroundColor:'#D99E30'}}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <div 
+            className="w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{ backgroundColor: '#D99E30' }}
+          >
+            <svg 
+              width="20" 
+              height="20" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="white" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
           </div>
-          <span className="text-xl font-semibold text-white" style={{fontFamily:"'Outfit',sans-serif"}}>Otterseas</span>
+          <span 
+            className="text-xl font-semibold tracking-tight text-white" 
+            style={{ fontFamily: "'Outfit', sans-serif" }}
+          >
+            Otterseas
+          </span>
         </div>
-        <div className="hidden md:flex items-center text-sm" style={{color:'#D99E30'}}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mr-2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          Free shipping on 10+ stickers
+        
+        {/* Free shipping notice - desktop only */}
+        <div 
+          className="hidden md:flex items-center text-sm" 
+          style={{ color: '#D99E30' }}
+        >
+          <svg 
+            width="16" 
+            height="16" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            className="mr-2"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+          Free shipping on orders of 10+ stickers
         </div>
-        <a href="#" className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full hover:scale-105 transition" style={{backgroundColor:'#D99E30',color:'white'}}>
-          Need a Surface Tank? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        
+        {/* Surface Tank CTA */}
+        <a 
+          href="#surface-tank" 
+          className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full transition-all hover:scale-105"
+          style={{ 
+            backgroundColor: '#D99E30',
+            color: 'white'
+          }}
+        >
+          <span>Need a Surface Tank?</span>
+          <svg 
+            width="16" 
+            height="16" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
         </a>
       </header>
 
+      {/* ===========================================
+          MAIN CONTENT
+          =========================================== */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        
+        {/* ===========================================
+            LEFT COLUMN - MARKETPLACE
+            =========================================== */}
         <div className="flex-1 md:w-[70%] flex flex-col overflow-hidden bg-white">
-          <div className="flex-shrink-0 px-6 py-6" style={{background:'linear-gradient(135deg,#0A2540 0%,#133659 50%,#0A2540 100%)',borderBottom:'4px solid #D99E30'}}>
+          
+          {/* -------------------------------------------
+              INTRO SECTION
+              ------------------------------------------- */}
+          <div 
+            className="flex-shrink-0 px-6 py-6"
+            style={{ 
+              background: 'linear-gradient(135deg, #0A2540 0%, #133659 50%, #0A2540 100%)',
+              borderBottom: '4px solid #D99E30'
+            }}
+          >
             <div className="max-w-2xl">
-              <h1 className="text-2xl md:text-3xl font-bold text-white mb-3" style={{fontFamily:"'Outfit',sans-serif"}}>Build Your Dive Story</h1>
-              <p className="text-white/70 text-sm md:text-base leading-relaxed">Every sticker marks a memory. Collect the dive sites you've conquered, the wrecks you've explored, and the reefs that took your breath away. Deck out your Surface Tank, laptop, or dive case with waterproof vinyl stickers that tell your underwater story.</p>
+              <h1 
+                className="text-2xl md:text-3xl font-bold text-white mb-3"
+                style={{ fontFamily: "'Outfit', sans-serif" }}
+              >
+                Build Your Dive Story
+              </h1>
+              <p className="text-white/70 text-sm md:text-base leading-relaxed">
+                Every sticker marks a memory. Collect the dive sites you've conquered, 
+                the wrecks you've explored, and the reefs that took your breath away. 
+                Deck out your Surface Tank, laptop, or dive case with waterproof vinyl 
+                stickers that tell your underwater story.
+              </p>
+              
+              {/* Pricing Tiers Preview */}
               <div className="flex flex-wrap gap-3 mt-5">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium" style={{backgroundColor:'rgba(148,163,184,.2)',color:'#cbd5e1',border:'1px solid rgba(148,163,184,.3)'}}><span className="w-2 h-2 rounded-full bg-slate-400"></span>1-10: £2.50 each</div>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium" style={{backgroundColor:'rgba(217,158,48,.2)',color:'#D99E30',border:'1px solid rgba(217,158,48,.3)'}}><span className="w-2 h-2 rounded-full" style={{backgroundColor:'#D99E30'}}></span>11-20: £1.75 each</div>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium" style={{backgroundColor:'rgba(74,222,128,.2)',color:'#4ade80',border:'1px solid rgba(74,222,128,.3)'}}><span className="w-2 h-2 rounded-full" style={{backgroundColor:'#4ade80'}}></span>21+: £1.50 each</div>
+                <div 
+                  className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium"
+                  style={{ 
+                    backgroundColor: 'rgba(148, 163, 184, 0.2)', 
+                    color: '#cbd5e1',
+                    border: '1px solid rgba(148, 163, 184, 0.3)'
+                  }}
+                >
+                  <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                  1-10 stickers: £2.50 each
+                </div>
+                <div 
+                  className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium"
+                  style={{ 
+                    backgroundColor: 'rgba(217, 158, 48, 0.2)', 
+                    color: '#D99E30',
+                    border: '1px solid rgba(217, 158, 48, 0.3)'
+                  }}
+                >
+                  <span 
+                    className="w-2 h-2 rounded-full" 
+                    style={{ backgroundColor: '#D99E30' }}
+                  ></span>
+                  11-20 stickers: £1.75 each
+                </div>
+                <div 
+                  className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium"
+                  style={{ 
+                    backgroundColor: 'rgba(74, 222, 128, 0.2)', 
+                    color: '#4ade80',
+                    border: '1px solid rgba(74, 222, 128, 0.3)'
+                  }}
+                >
+                  <span 
+                    className="w-2 h-2 rounded-full" 
+                    style={{ backgroundColor: '#4ade80' }}
+                  ></span>
+                  21+ stickers: £1.50 each
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex-shrink-0 px-6 py-4 bg-white" style={{boxShadow:'0 4px 12px rgba(10,37,64,.08)'}}>
+          {/* -------------------------------------------
+              REGION TABS
+              ------------------------------------------- */}
+          <div 
+            className="flex-shrink-0 px-6 py-4 bg-white"
+            style={{ boxShadow: '0 4px 12px rgba(10, 37, 64, 0.08)' }}
+          >
             <div className="flex gap-2 overflow-x-auto hide-scrollbar">
-              {REGIONS.map(r => (
-                <button key={r} onClick={() => setActiveTab(r)} className={`px-5 py-2.5 text-sm font-medium rounded-xl whitespace-nowrap transition ${activeTab === r ? 'text-white shadow-lg' : 'text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200'}`} style={activeTab === r ? {background:'linear-gradient(135deg,#D99E30 0%,#c48a20 100%)',boxShadow:'0 4px 12px rgba(217,158,48,.4)'} : {}}>{r}</button>
+              {REGIONS.map((region) => (
+                <button
+                  key={region}
+                  onClick={() => setActiveTab(region)}
+                  className={`tab-button relative px-5 py-2.5 text-sm font-medium rounded-xl whitespace-nowrap ${
+                    activeTab === region 
+                      ? 'text-white shadow-lg' 
+                      : 'text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                  style={activeTab === region ? { 
+                    background: 'linear-gradient(135deg, #D99E30 0%, #c48a20 100%)',
+                    boxShadow: '0 4px 12px rgba(217, 158, 48, 0.4)'
+                  } : {}}
+                >
+                  {region}
+                </button>
               ))}
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto hide-scrollbar p-6" style={{background:'linear-gradient(180deg,#fff 0%,#f8fafc 100%)'}}>
+          {/* -------------------------------------------
+              STICKER GRID (Scrollable)
+              ------------------------------------------- */}
+          <div 
+            className="flex-1 overflow-y-auto hide-scrollbar p-6"
+            style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)' }}
+          >
+            {/* Region Header */}
             <div className="mb-6">
-              <h2 className="text-xl font-bold flex items-center gap-3 mb-5" style={{fontFamily:"'Outfit',sans-serif",color:'#0A2540'}}>
-                <span className="w-1.5 h-7 rounded-full" style={{backgroundColor:'#D99E30'}}></span>{activeTab}
-                <span className="text-sm font-medium px-3 py-1 rounded-full" style={{backgroundColor:'rgba(217,158,48,.15)',color:'#D99E30'}}>{stickers.length} stickers</span>
-              </h2>
+              <div className="flex items-center justify-between mb-5">
+                <h2 
+                  className="text-xl font-bold flex items-center gap-3"
+                  style={{ fontFamily: "'Outfit', sans-serif", color: '#0A2540' }}
+                >
+                  <span 
+                    className="w-1.5 h-7 rounded-full" 
+                    style={{ backgroundColor: '#D99E30' }}
+                  ></span>
+                  {activeTab}
+                  <span 
+                    className="text-sm font-medium px-3 py-1 rounded-full"
+                    style={{ 
+                      backgroundColor: 'rgba(217, 158, 48, 0.15)', 
+                      color: '#D99E30' 
+                    }}
+                  >
+                    {activeStickers.length} stickers
+                  </span>
+                </h2>
+              </div>
+              
+              {/* Sticker Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {stickers.map((s, i) => (
-                  <button key={s.id} onClick={() => toggle(s.id)} className={`card fade relative bg-white rounded-2xl p-4 text-left border-2 ${cart[s.id] ? 'sel border-transparent' : 'border-gray-100 hover:border-gray-200'} ${animating.has(s.id) ? 'anim' : ''}`} style={{animationDelay:`${i*30}ms`}}>
-                    <div className="aspect-square rounded-xl mb-3 flex items-center justify-center relative" style={{background:cart[s.id]?'linear-gradient(135deg,#D99E30 0%,#c48a20 100%)':'linear-gradient(135deg,#0A2540 0%,#133659 100%)'}}>
-                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" opacity={cart[s.id]?.9:.4}><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20"/><path d="M2 12h20"/><path d="M12 2c2.5 2.5 4 6 4 10s-1.5 7.5-4 10"/></svg>
-                      {cart[s.id] && <div className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center bg-white shadow-lg"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D99E30" strokeWidth="3"><path d="M20 6L9 17l-5-5"/></svg></div>}
-                    </div>
-                    <p className="text-sm font-semibold text-gray-900 truncate">{s.name}</p>
-                    <p className="text-sm font-bold mt-1" style={{color:'#D99E30'}}>£2.50</p>
-                  </button>
-                ))}
+                {activeStickers.map((sticker, index) => {
+                  const isSelected = cart[sticker.id];
+                  const isAnimating = animatingItems.has(sticker.id);
+                  
+                  return (
+                    <button
+                      key={sticker.id}
+                      onClick={() => toggleSticker(sticker.id)}
+                      className={`sticker-card sticker-fade-in relative bg-white rounded-2xl p-4 text-left border-2 ${
+                        isSelected ? 'selected border-transparent' : 'border-gray-100 hover:border-gray-200'
+                      } ${isAnimating ? 'animating' : ''}`}
+                      style={{ animationDelay: `${index * 30}ms` }}
+                    >
+                      {/* Sticker Image Placeholder */}
+                      <div 
+                        className="aspect-square rounded-xl mb-3 flex items-center justify-center relative overflow-hidden"
+                        style={{ 
+                          background: isSelected 
+                            ? 'linear-gradient(135deg, #D99E30 0%, #c48a20 100%)'
+                            : 'linear-gradient(135deg, #0A2540 0%, #133659 100%)',
+                        }}
+                      >
+                        {/* Globe icon placeholder */}
+                        <svg 
+                          width="48" 
+                          height="48" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="white" 
+                          strokeWidth="1.5" 
+                          opacity={isSelected ? 0.9 : 0.4}
+                        >
+                          <circle cx="12" cy="12" r="10"/>
+                          <path d="M12 2a10 10 0 0 0 0 20"/>
+                          <path d="M2 12h20"/>
+                          <path d="M12 2c2.5 2.5 4 6 4 10s-1.5 7.5-4 10"/>
+                        </svg>
+                        
+                        {/* Selection Checkmark */}
+                        {isSelected && (
+                          <div className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center bg-white shadow-lg">
+                            <svg 
+                              width="16" 
+                              height="16" 
+                              viewBox="0 0 24 24" 
+                              fill="none" 
+                              stroke="#D99E30" 
+                              strokeWidth="3"
+                            >
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Sticker Name */}
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {sticker.name}
+                      </p>
+                      
+                      {/* Price */}
+                      <p 
+                        className="text-sm font-bold mt-1" 
+                        style={{ color: '#D99E30' }}
+                      >
+                        £{BASE_PRICE.toFixed(2)}
+                      </p>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="mt-8 rounded-2xl p-6" style={{background:'linear-gradient(135deg,#0A2540 0%,#0d3252 50%,#0A2540 100%)',boxShadow:'0 8px 32px rgba(10,37,64,.3)'}}>
-              <h2 className="text-xl font-bold mb-1 text-white flex items-center gap-3" style={{fontFamily:"'Outfit',sans-serif"}}><span className="w-1.5 h-7 rounded-full" style={{backgroundColor:'#D99E30'}}></span>Quick Add Packs</h2>
-              <p className="text-white/50 text-sm mb-6 ml-5">Jump-start your collection with curated bundles</p>
+            {/* -------------------------------------------
+                BUNDLES SECTION
+                ------------------------------------------- */}
+            <div 
+              className="mt-8 rounded-2xl p-6"
+              style={{ 
+                background: 'linear-gradient(135deg, #0A2540 0%, #0d3252 50%, #0A2540 100%)',
+                boxShadow: '0 8px 32px rgba(10, 37, 64, 0.3)'
+              }}
+            >
+              <h2 
+                className="text-xl font-bold mb-1 text-white flex items-center gap-3"
+                style={{ fontFamily: "'Outfit', sans-serif" }}
+              >
+                <span 
+                  className="w-1.5 h-7 rounded-full" 
+                  style={{ backgroundColor: '#D99E30' }}
+                ></span>
+                Quick Add Packs
+              </h2>
+              <p className="text-white/50 text-sm mb-6 ml-5">
+                Jump-start your collection with curated bundles
+              </p>
+              
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {BUNDLES.map(b => (
-                  <div key={b.id} className="rounded-xl p-5 flex flex-col transition hover:translate-y-[-2px]" style={{backgroundColor:'rgba(217,158,48,.1)',border:'2px solid rgba(217,158,48,.3)'}}>
+                {BUNDLES.map((bundle) => (
+                  <div
+                    key={bundle.id}
+                    className="bundle-card rounded-xl p-5 flex flex-col"
+                    style={{ 
+                      backgroundColor: 'rgba(217, 158, 48, 0.1)',
+                      border: '2px solid rgba(217, 158, 48, 0.3)'
+                    }}
+                  >
                     <div className="flex items-start justify-between mb-3">
-                      <div><h3 className="font-bold text-white">{b.name}</h3><p className="text-sm text-white/50 mt-0.5">{b.description}</p></div>
-                      <span className="text-xs font-bold px-2.5 py-1.5 rounded-lg" style={{backgroundColor:'#D99E30',color:'white'}}>5 stickers</span>
+                      <div>
+                        <h3 className="font-bold text-white">{bundle.name}</h3>
+                        <p className="text-sm text-white/50 mt-0.5">
+                          {bundle.description}
+                        </p>
+                      </div>
+                      <span 
+                        className="text-xs font-bold px-2.5 py-1.5 rounded-lg"
+                        style={{ backgroundColor: '#D99E30', color: 'white' }}
+                      >
+                        5 stickers
+                      </span>
                     </div>
-                    <div className="flex gap-2 mb-4">{[0,1,2,3,4].map(i => <div key={i} className="w-10 h-10 rounded-lg" style={{background:'linear-gradient(135deg,#D99E30 0%,#c48a20 100%)',opacity:.5+i*.12}}/>)}</div>
-                    <button onClick={() => addBundle(b)} className="mt-auto w-full py-3 rounded-xl text-sm font-bold hover:scale-[1.02] transition" style={{backgroundColor:'#D99E30',color:'white'}}>Add Pack · £12.50</button>
+                    
+                    {/* Bundle preview thumbnails */}
+                    <div className="flex gap-2 mb-4">
+                      {bundle.stickerIds.slice(0, 5).map((_, i) => (
+                        <div 
+                          key={i}
+                          className="w-10 h-10 rounded-lg"
+                          style={{ 
+                            background: 'linear-gradient(135deg, #D99E30 0%, #c48a20 100%)',
+                            opacity: 0.5 + (i * 0.12)
+                          }}
+                        />
+                      ))}
+                    </div>
+                    
+                    <button
+                      onClick={() => addBundle(bundle)}
+                      className="mt-auto w-full py-3 rounded-xl text-sm font-bold transition-all hover:scale-[1.02]"
+                      style={{ backgroundColor: '#D99E30', color: 'white' }}
+                    >
+                      Add Pack · £{(BASE_PRICE * 5).toFixed(2)}
+                    </button>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="h-48 md:h-8"/>
+            
+            {/* Bottom padding for mobile cart drawer */}
+            <div className="h-48 md:h-8" />
           </div>
         </div>
 
-        <div className="hidden md:flex md:w-[30%] flex-col" style={{background:'linear-gradient(180deg,#0A2540 0%,#071a2e 100%)'}}>
-          <div className="flex-shrink-0 p-6" style={{background:'linear-gradient(180deg,rgba(217,158,48,.15) 0%,transparent 100%)',borderBottom:'1px solid rgba(217,158,48,.2)'}}>
+        {/* ===========================================
+            RIGHT COLUMN - CART SIDEBAR (Desktop)
+            =========================================== */}
+        <div 
+          className="hidden md:flex md:w-[30%] flex-col"
+          style={{ background: 'linear-gradient(180deg, #0A2540 0%, #071a2e 100%)' }}
+        >
+          {/* -------------------------------------------
+              VISUALIZER
+              ------------------------------------------- */}
+          <div 
+            className="flex-shrink-0 p-6"
+            style={{ 
+              background: 'linear-gradient(180deg, rgba(217, 158, 48, 0.15) 0%, transparent 100%)',
+              borderBottom: '1px solid rgba(217, 158, 48, 0.2)'
+            }}
+          >
             <div className="relative flex items-center justify-center py-6">
+              {/* Water Bottle Placeholder */}
               <div className="relative">
-                <div className="w-24 h-36 rounded-2xl flex items-center justify-center" style={{background:'linear-gradient(180deg,#1a4a7a 0%,#0A2540 100%)',boxShadow:'0 8px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.1),0 0 0 2px rgba(217,158,48,.3)'}}>
-                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#D99E30" strokeWidth="1.5" opacity=".7"><path d="M6 2h12v6l-2 2v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10L6 8V2z"/><path d="M6 2h12v2H6z"/></svg>
+                <div 
+                  className="w-24 h-36 rounded-2xl flex items-center justify-center"
+                  style={{ 
+                    background: 'linear-gradient(180deg, #1a4a7a 0%, #0A2540 100%)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 2px rgba(217, 158, 48, 0.3)'
+                  }}
+                >
+                  <svg 
+                    width="36" 
+                    height="36" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="#D99E30" 
+                    strokeWidth="1.5" 
+                    opacity="0.7"
+                  >
+                    <path d="M6 2h12v6l-2 2v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10L6 8V2z"/>
+                    <path d="M6 2h12v2H6z"/>
+                  </svg>
                 </div>
-                {totalItems > 0 && <div className="absolute -top-3 -right-3 w-12 h-12 rounded-full flex items-center justify-center text-base font-bold" style={{backgroundColor:'#D99E30',color:'white',boxShadow:'0 4px 16px rgba(217,158,48,.5)'}}>{totalItems}</div>}
+                
+                {/* Counter Badge */}
+                {totalItems > 0 && (
+                  <div 
+                    className="absolute -top-3 -right-3 w-12 h-12 rounded-full flex items-center justify-center text-base font-bold"
+                    style={{ 
+                      backgroundColor: '#D99E30',
+                      color: 'white',
+                      boxShadow: '0 4px 16px rgba(217, 158, 48, 0.5)'
+                    }}
+                  >
+                    {totalItems}
+                  </div>
+                )}
               </div>
             </div>
+            
             <div className="text-center">
-              <p className="text-white/80 text-sm font-medium">{totalItems === 0 ? 'Select stickers to build your pack' : `${totalItems} sticker${totalItems !== 1 ? 's' : ''} selected`}</p>
-              {totalItems > 0 && <div className="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-full text-xs font-bold" style={{backgroundColor:`${tier.color}25`,color:tier.color,border:`2px solid ${tier.color}50`}}><span className="w-2 h-2 rounded-full" style={{backgroundColor:tier.color}}></span>{tier.tier} · £{pricePerItem.toFixed(2)}/sticker</div>}
-              {tier.next && totalItems > 0 && <p className="text-white/40 text-xs mt-2">Add {tier.next} more for next tier!</p>}
+              <p className="text-white/80 text-sm font-medium">
+                {totalItems === 0 
+                  ? 'Select stickers to build your pack' 
+                  : `${totalItems} sticker${totalItems !== 1 ? 's' : ''} selected`
+                }
+              </p>
+              
+              {/* Pricing Tier Badge */}
+              {totalItems > 0 && (
+                <div 
+                  className="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-full text-xs font-bold"
+                  style={{ 
+                    backgroundColor: `${pricingTier.color}25`,
+                    color: pricingTier.color,
+                    border: `2px solid ${pricingTier.color}50`
+                  }}
+                >
+                  <span 
+                    className="w-2 h-2 rounded-full" 
+                    style={{ backgroundColor: pricingTier.color }}
+                  ></span>
+                  {pricingTier.tier} · £{pricePerItem.toFixed(2)}/sticker
+                </div>
+              )}
+              
+              {/* Next tier prompt */}
+              {pricingTier.next && totalItems > 0 && (
+                <p className="text-white/40 text-xs mt-2">
+                  Add {pricingTier.next} more for next tier!
+                </p>
+              )}
             </div>
           </div>
 
+          {/* -------------------------------------------
+              CART LIST
+              ------------------------------------------- */}
           <div className="flex-1 overflow-y-auto hide-scrollbar p-4">
-            {cartItems.length === 0 ? (
+            {cartStickers.length === 0 ? (
+              // Empty state
               <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-4" style={{background:'linear-gradient(135deg,rgba(217,158,48,.2) 0%,rgba(217,158,48,.1) 100%)',border:'2px dashed rgba(217,158,48,.3)'}}>
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D99E30" strokeWidth="1.5" opacity=".7"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+                <div 
+                  className="w-20 h-20 rounded-2xl flex items-center justify-center mb-4"
+                  style={{ 
+                    background: 'linear-gradient(135deg, rgba(217, 158, 48, 0.2) 0%, rgba(217, 158, 48, 0.1) 100%)',
+                    border: '2px dashed rgba(217, 158, 48, 0.3)'
+                  }}
+                >
+                  <svg 
+                    width="32" 
+                    height="32" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="#D99E30" 
+                    strokeWidth="1.5" 
+                    opacity="0.7"
+                  >
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M8 12h8M12 8v8"/>
+                  </svg>
                 </div>
                 <p className="text-white/50 text-sm font-medium">Your pack is empty</p>
                 <p className="text-white/30 text-xs mt-1">Click stickers to add them</p>
               </div>
             ) : (
+              // Cart items
               <div className="space-y-2">
-                {cartItems.map((s, i) => (
-                  <div key={s.id} className="slide flex items-center gap-3 rounded-xl p-3" style={{backgroundColor:'rgba(217,158,48,.1)',border:'1px solid rgba(217,158,48,.2)',animationDelay:`${i*50}ms`}}>
-                    <div className="w-10 h-10 rounded-lg flex-shrink-0" style={{background:'linear-gradient(135deg,#D99E30 0%,#c48a20 100%)'}}/>
-                    <div className="flex-1 min-w-0"><p className="text-white text-sm font-medium truncate">{s.name}</p><p className="text-white/40 text-xs">{s.region}</p></div>
+                {cartStickers.map((sticker, index) => (
+                  <div 
+                    key={sticker.id}
+                    className="cart-item-enter flex items-center gap-3 rounded-xl p-3"
+                    style={{ 
+                      backgroundColor: 'rgba(217, 158, 48, 0.1)',
+                      border: '1px solid rgba(217, 158, 48, 0.2)',
+                      animationDelay: `${index * 50}ms`
+                    }}
+                  >
+                    {/* Thumbnail */}
+                    <div 
+                      className="w-10 h-10 rounded-lg flex-shrink-0"
+                      style={{ 
+                        background: 'linear-gradient(135deg, #D99E30 0%, #c48a20 100%)' 
+                      }}
+                    />
+                    
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-sm font-medium truncate">
+                        {sticker.name}
+                      </p>
+                      <p className="text-white/40 text-xs">{sticker.region}</p>
+                    </div>
+                    
+                    {/* Quantity Controls */}
                     <div className="flex items-center gap-1">
-                      <button onClick={() => updateQty(s.id, -1)} className="w-8 h-8 rounded-lg flex items-center justify-center hover:scale-110 transition" style={{backgroundColor:'#D99E30',color:'white'}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14"/></svg></button>
-                      <span className="w-8 text-center text-white text-sm font-bold">{s.qty}</span>
-                      <button onClick={() => updateQty(s.id, 1)} className="w-8 h-8 rounded-lg flex items-center justify-center hover:scale-110 transition" style={{backgroundColor:'#D99E30',color:'white'}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M5 12h14"/></svg></button>
+                      <button
+                        onClick={() => updateQuantity(sticker.id, -1)}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                        style={{ backgroundColor: '#D99E30', color: 'white' }}
+                      >
+                        <svg 
+                          width="14" 
+                          height="14" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="3"
+                        >
+                          <path d="M5 12h14"/>
+                        </svg>
+                      </button>
+                      <span className="w-8 text-center text-white text-sm font-bold">
+                        {sticker.quantity}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(sticker.id, 1)}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                        style={{ backgroundColor: '#D99E30', color: 'white' }}
+                      >
+                        <svg 
+                          width="14" 
+                          height="14" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="3"
+                        >
+                          <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -240,35 +883,223 @@ export default function OtterseasStickerBuilder() {
             )}
           </div>
 
-          <div className="flex-shrink-0 p-4" style={{background:'linear-gradient(180deg,transparent 0%,rgba(217,158,48,.1) 100%)',borderTop:'1px solid rgba(217,158,48,.2)'}}>
-            <div className="mb-4 p-4 rounded-xl" style={{backgroundColor:'rgba(255,255,255,.05)',border:'1px solid rgba(255,255,255,.1)'}}>
-              <div className="flex justify-between text-xs mb-3"><span className="text-white/60 font-medium">Pricing Progress</span><span className="font-bold" style={{color:tier.color}}>{tier.tier}</span></div>
-              <div className="flex gap-1 mb-2">
-                <div className="flex-1 h-2.5 rounded-full overflow-hidden bg-white/10"><div className="h-full rounded-full transition-all duration-500" style={{width:`${Math.min(100,(totalItems/10)*100)}%`,backgroundColor:'#94a3b8'}}/></div>
-                <div className="flex-1 h-2.5 rounded-full overflow-hidden bg-white/10"><div className="h-full rounded-full transition-all duration-500" style={{width:`${Math.min(100,Math.max(0,(totalItems-10)/10)*100)}%`,backgroundColor:'#D99E30'}}/></div>
-                <div className="flex-1 h-2.5 rounded-full overflow-hidden bg-white/10"><div className="h-full rounded-full transition-all duration-500" style={{width:`${Math.min(100,Math.max(0,(totalItems-20)/10)*100)}%`,backgroundColor:'#4ade80'}}/></div>
+          {/* -------------------------------------------
+              TOTALS & CHECKOUT
+              ------------------------------------------- */}
+          <div 
+            className="flex-shrink-0 p-4"
+            style={{ 
+              background: 'linear-gradient(180deg, transparent 0%, rgba(217, 158, 48, 0.1) 100%)',
+              borderTop: '1px solid rgba(217, 158, 48, 0.2)'
+            }}
+          >
+            {/* Pricing Progress Bar */}
+            <div 
+              className="mb-4 p-4 rounded-xl"
+              style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}
+            >
+              <div className="flex justify-between text-xs mb-3">
+                <span className="text-white/60 font-medium">Pricing Progress</span>
+                <span 
+                  className="font-bold" 
+                  style={{ color: pricingTier.color }}
+                >
+                  {pricingTier.tier}
+                </span>
               </div>
-              <div className="flex justify-between text-xs text-white/40 font-medium"><span>10</span><span>20</span><span>30</span></div>
+              
+              {/* Three-segment progress bar */}
+              <div className="flex gap-1 mb-2">
+                {/* Segment 1: 0-10 */}
+                <div className="flex-1 h-2.5 rounded-full overflow-hidden bg-white/10">
+                  <div 
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${Math.min(100, (totalItems / 10) * 100)}%`,
+                      backgroundColor: '#94a3b8'
+                    }}
+                  />
+                </div>
+                {/* Segment 2: 11-20 */}
+                <div className="flex-1 h-2.5 rounded-full overflow-hidden bg-white/10">
+                  <div 
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${Math.min(100, Math.max(0, (totalItems - 10) / 10) * 100)}%`,
+                      backgroundColor: '#D99E30'
+                    }}
+                  />
+                </div>
+                {/* Segment 3: 21+ */}
+                <div className="flex-1 h-2.5 rounded-full overflow-hidden bg-white/10">
+                  <div 
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${Math.min(100, Math.max(0, (totalItems - 20) / 10) * 100)}%`,
+                      backgroundColor: '#4ade80'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <div className="flex justify-between text-xs text-white/40 font-medium">
+                <span>10</span>
+                <span>20</span>
+                <span>30</span>
+              </div>
             </div>
-            <div className="flex justify-between items-baseline mb-2"><span className="text-white/60 text-sm font-medium">Total</span><span className="text-3xl font-bold" style={{color:'#D99E30'}}>£{totalPrice.toFixed(2)}</span></div>
-            {savings > 0 && <div className="text-right mb-4"><span className="text-sm font-bold px-3 py-1 rounded-lg" style={{backgroundColor:'rgba(74,222,128,.2)',color:'#4ade80'}}>You save £{savings.toFixed(2)}!</span></div>}
-            {!canCheckout && totalItems > 0 && <p className="text-center text-xs mb-3 py-2 rounded-lg font-medium" style={{backgroundColor:'rgba(217,158,48,.1)',color:'#D99E30'}}>Minimum {MIN_ORDER} stickers · Add {MIN_ORDER - totalItems} more</p>}
-            <button onClick={checkout} disabled={!canCheckout} className="w-full py-4 rounded-xl text-sm font-bold hover:scale-[1.02] transition" style={{background:canCheckout?'linear-gradient(135deg,#D99E30 0%,#c48a20 100%)':'rgba(255,255,255,.1)',color:canCheckout?'white':'rgba(255,255,255,.3)',cursor:canCheckout?'pointer':'not-allowed',boxShadow:canCheckout?'0 4px 20px rgba(217,158,48,.5)':'none'}}>{canCheckout ? 'Proceed to Checkout →' : `Minimum ${MIN_ORDER} stickers required`}</button>
+
+            {/* Price Display */}
+            <div className="flex justify-between items-baseline mb-2">
+              <span className="text-white/60 text-sm font-medium">Total</span>
+              <span 
+                className="text-3xl font-bold" 
+                style={{ color: '#D99E30' }}
+              >
+                £{totalPrice.toFixed(2)}
+              </span>
+            </div>
+            
+            {/* Savings Badge */}
+            {savings > 0 && (
+              <div className="text-right mb-4">
+                <span 
+                  className="text-sm font-bold px-3 py-1 rounded-lg"
+                  style={{ 
+                    backgroundColor: 'rgba(74, 222, 128, 0.2)', 
+                    color: '#4ade80' 
+                  }}
+                >
+                  You save £{savings.toFixed(2)}!
+                </span>
+              </div>
+            )}
+
+            {/* Minimum Order Notice */}
+            {!canCheckout && totalItems > 0 && (
+              <p 
+                className="text-center text-xs mb-3 py-2 rounded-lg font-medium"
+                style={{ 
+                  backgroundColor: 'rgba(217, 158, 48, 0.1)', 
+                  color: '#D99E30' 
+                }}
+              >
+                Minimum {MIN_ORDER} stickers per order · Add {MIN_ORDER - totalItems} more
+              </p>
+            )}
+
+            {/* Checkout Button */}
+            <button
+              onClick={handleCheckout}
+              disabled={!canCheckout}
+              className="w-full py-4 rounded-xl text-sm font-bold transition-all hover:scale-[1.02]"
+              style={{ 
+                background: canCheckout 
+                  ? 'linear-gradient(135deg, #D99E30 0%, #c48a20 100%)'
+                  : 'rgba(255, 255, 255, 0.1)',
+                color: canCheckout ? 'white' : 'rgba(255, 255, 255, 0.3)',
+                cursor: canCheckout ? 'pointer' : 'not-allowed',
+                boxShadow: canCheckout ? '0 4px 20px rgba(217, 158, 48, 0.5)' : 'none'
+              }}
+            >
+              {canCheckout 
+                ? 'Proceed to Checkout →' 
+                : `Minimum ${MIN_ORDER} stickers required`
+              }
+            </button>
           </div>
         </div>
 
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50" style={{background:'linear-gradient(180deg,#0A2540 0%,#071a2e 100%)',boxShadow:'0 -4px 20px rgba(10,37,64,.4)'}}>
+        {/* ===========================================
+            MOBILE CART DRAWER
+            =========================================== */}
+        <div 
+          className="md:hidden fixed bottom-0 left-0 right-0 z-50"
+          style={{ 
+            background: 'linear-gradient(180deg, #0A2540 0%, #071a2e 100%)',
+            boxShadow: '0 -4px 20px rgba(10, 37, 64, 0.4)'
+          }}
+        >
+          {/* Cart Summary */}
           <div className="px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-base" style={{backgroundColor:'#D99E30',color:'white'}}>{totalItems}</div>
-              <div><p className="text-white text-sm font-semibold">{totalItems === 0 ? 'Your pack is empty' : `${totalItems} sticker${totalItems !== 1 ? 's' : ''}`}</p><div className="flex items-center gap-2"><span className="text-sm font-bold" style={{color:'#D99E30'}}>£{totalPrice.toFixed(2)}</span>{savings > 0 && <span className="text-xs font-medium" style={{color:'#4ade80'}}>Save £{savings.toFixed(2)}</span>}</div></div>
+              {/* Item Count Badge */}
+              <div 
+                className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-base"
+                style={{ backgroundColor: '#D99E30', color: 'white' }}
+              >
+                {totalItems}
+              </div>
+              
+              {/* Summary Text */}
+              <div>
+                <p className="text-white text-sm font-semibold">
+                  {totalItems === 0 
+                    ? 'Your pack is empty' 
+                    : `${totalItems} sticker${totalItems !== 1 ? 's' : ''}`
+                  }
+                </p>
+                <div className="flex items-center gap-2">
+                  <span 
+                    className="text-sm font-bold" 
+                    style={{ color: '#D99E30' }}
+                  >
+                    £{totalPrice.toFixed(2)}
+                  </span>
+                  {savings > 0 && (
+                    <span 
+                      className="text-xs font-medium" 
+                      style={{ color: '#4ade80' }}
+                    >
+                      Save £{savings.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-            <button onClick={checkout} disabled={!canCheckout} className="px-6 py-3 rounded-xl text-sm font-bold transition" style={{background:canCheckout?'linear-gradient(135deg,#D99E30 0%,#c48a20 100%)':'rgba(255,255,255,.1)',color:canCheckout?'white':'rgba(255,255,255,.3)'}}>{canCheckout ? 'Checkout →' : `Min ${MIN_ORDER}`}</button>
+            
+            {/* Checkout Button */}
+            <button
+              onClick={handleCheckout}
+              disabled={!canCheckout}
+              className="px-6 py-3 rounded-xl text-sm font-bold transition-all"
+              style={{ 
+                background: canCheckout 
+                  ? 'linear-gradient(135deg, #D99E30 0%, #c48a20 100%)'
+                  : 'rgba(255, 255, 255, 0.1)',
+                color: canCheckout ? 'white' : 'rgba(255, 255, 255, 0.3)',
+              }}
+            >
+              {canCheckout ? 'Checkout →' : `Min ${MIN_ORDER}`}
+            </button>
           </div>
+          
+          {/* Progress Bar */}
           <div className="flex h-1.5">
-            <div className="transition-all duration-500" style={{width:`${Math.min(33.33,(totalItems/10)*33.33)}%`,backgroundColor:'#94a3b8'}}/>
-            <div className="transition-all duration-500" style={{width:`${Math.min(33.33,Math.max(0,(totalItems-10)/10)*33.33)}%`,backgroundColor:'#D99E30'}}/>
-            <div className="transition-all duration-500" style={{width:`${Math.min(33.34,Math.max(0,(totalItems-20)/10)*33.34)}%`,backgroundColor:'#4ade80'}}/>
+            <div 
+              className="transition-all duration-500"
+              style={{ 
+                width: `${Math.min(33.33, (totalItems / 10) * 33.33)}%`,
+                backgroundColor: '#94a3b8'
+              }}
+            />
+            <div 
+              className="transition-all duration-500"
+              style={{ 
+                width: `${Math.min(33.33, Math.max(0, (totalItems - 10) / 10) * 33.33)}%`,
+                backgroundColor: '#D99E30'
+              }}
+            />
+            <div 
+              className="transition-all duration-500"
+              style={{ 
+                width: `${Math.min(33.34, Math.max(0, (totalItems - 20) / 10) * 33.34)}%`,
+                backgroundColor: '#4ade80'
+              }}
+            />
           </div>
         </div>
       </div>
