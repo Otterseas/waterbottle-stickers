@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Otterseas - Build Your Dive Story</title>
-  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="icon" href="logo.png" type="image/png">
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -92,7 +92,7 @@
     // ===========================================
     const STICKERS = {
       'UK/Europe': [
-        { id: 'uk-1', name: 'Scapa Flow', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK1' },
+        { id: 'uk-1', name: 'Scapa Flow', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK1', productUrl: 'https://yourstore.com/products/scapa-flow'  },
         { id: 'uk-2', name: 'SS Thistlegorm', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK2' },
         { id: 'uk-3', name: 'HMS Royal Oak', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK3' },
         { id: 'uk-4', name: 'Farne Islands', region: 'UK/Europe', shopifyVariantId: 'PLACEHOLDER_UK4' },
@@ -140,6 +140,16 @@
         { id: 'ip-6', name: 'Maldives', region: 'Indo-Pacific', shopifyVariantId: 'PLACEHOLDER_IP6' },
         { id: 'ip-7', name: 'Philippines', region: 'Indo-Pacific', shopifyVariantId: 'PLACEHOLDER_IP7' },
         { id: 'ip-8', name: 'Thailand', region: 'Indo-Pacific', shopifyVariantId: 'PLACEHOLDER_IP8' },
+      ],
+      'Indian Ocean': [
+        { id: 'io-1', name: 'Maldives', region: 'Indian Ocean', shopifyVariantId: 'PLACEHOLDER_IO1' },
+        { id: 'io-2', name: 'Seychelles', region: 'Indian Ocean', shopifyVariantId: 'PLACEHOLDER_IO2' },
+        { id: 'io-3', name: 'Mozambique', region: 'Indian Ocean', shopifyVariantId: 'PLACEHOLDER_IO3' },
+        { id: 'io-4', name: 'Sharm El Sheikh', region: 'Indian Ocean', shopifyVariantId: 'PLACEHOLDER_IO4' },
+        { id: 'io-5', name: 'Hurghada', region: 'Indian Ocean', shopifyVariantId: 'PLACEHOLDER_IO5' },
+        { id: 'io-6', name: 'Dahab', region: 'Indian Ocean', shopifyVariantId: 'PLACEHOLDER_IO6' },
+        { id: 'io-7', name: 'Marsa Alam', region: 'Indian Ocean', shopifyVariantId: 'PLACEHOLDER_IO7' },
+        { id: 'io-8', name: 'Zanzibar', region: 'Indian Ocean', shopifyVariantId: 'PLACEHOLDER_IO8' },
       ],
       'Expeditions': [
         { id: 'ex-1', name: 'Antarctica', region: 'Expeditions', shopifyVariantId: 'PLACEHOLDER_EX1' },
@@ -293,9 +303,9 @@
                     Build Your Dive Story
                   </h1>
                   <p className="text-white/70 text-sm md:text-base leading-relaxed">
-                    Every sticker marks a memory. Collect the dive sites you've conquered, the wrecks you've explored, 
-                    and the reefs that took your breath away. Deck out your Surface Tank, laptop, or dive case with 
-                    waterproof vinyl stickers that tell your underwater story.
+                    Memories that stick. Collect the dive sites you've visited, the wrecks & reef you've explored, 
+                    or aspire to visit! Built your own dive passport. Mask up your Surface Tank, laptop, or
+                    dive case with waterproof vinyl stickers that tell your underwater Jounrey.
                   </p>
                   
                   {/* Pricing Tiers */}
@@ -378,7 +388,27 @@
                           </div>
                           
                           <p className="text-sm font-semibold text-gray-900 truncate">{sticker.name}</p>
-                          <p className="text-sm font-bold mt-1" style={{ color: '#D99E30' }}>£{BASE_PRICE.toFixed(2)}</p>
+                         <div className="flex items-center justify-between mt-1">
+                          <p className="text-sm font-bold" style={{ color: '#D99E30' }}>£{BASE_PRICE.toFixed(2)}</p>
+                          {sticker.productUrl && (
+    
+                              href={sticker.productUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-6 h-6 rounded-md flex items-center justify-center transition-all hover:scale-110"
+                              style={{ backgroundColor: 'rgba(10, 37, 64, 0.1)' }}
+                              title="View product page"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0A2540" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                <polyline points="15 3 21 3 21 9"/>
+                                <line x1="10" y1="14" x2="21" y2="3"/>
+                              </svg>
+                            </a>
+                          )}
+                        </div>
+                        
                         </button>
                       );
                     })}
